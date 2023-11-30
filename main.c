@@ -9,73 +9,70 @@
 #define RUTA_A_LEER "Textos/"
 #define RUTA_A_ESCRIBIR "Entradas/"
 #define CANT_CARACTERES_MAX 2000
+#define LONGITUD_MAX_LINEA 255
 
 //funciones
 char* procesar_texto(char* nomTexto) {
+    char c, resultado[CANT_CARACTERES_MAX];
+    int i = 0, puntoEncontrado = 0, espacioEncontrado = 0, enterEncontrado = 0;
+
     FILE* archivoEntrada;
     archivoEntrada = fopen(nomTexto, "r");
 
-    //?
     if (archivoEntrada == NULL) {
-        exit(1);
+        printf("Hubo un problema al abrir el archivo\n");
+        exit(-1);
     }
-    char c;
-    int i = 0;
-    int puntoEncontrado = 0;
-    int espacioEncontrado = 0;
-    int enterEncontrado = 0;
-    char resultado[CANT_CARACTERES_MAX];
     while ( (c = fgetc(archivoEntrada)) != EOF) {
 
         if (c >= 'A' && c <= 'Z') {
-            resultado[i] = tolower(c);
-            i++;
+            resultado[i++] = tolower(c);
             puntoEncontrado = 0;
             espacioEncontrado = 0;
             enterEncontrado = 0;
         }
         
         else if ((c >= 'a' && c <= 'z')) {
-            resultado[i] = c;
-            i++;
+            resultado[i++] = c;
             puntoEncontrado = 0;
             espacioEncontrado = 0;
             enterEncontrado = 0;
         }
-
-        else if (c == ' ' && !espacioEncontrado && !puntoEncontrado) {
+ 
+        else if (c == ' ' && !espacioEncontrado && !puntoEncontrado && !enterEncontrado) {
+            resultado[i++] = c;
             espacioEncontrado = 1;
-            resultado[i] = c;
-            i++;
             enterEncontrado = 0;
+            puntoEncontrado=0;
         }
 
         else if (c == '.') {
+            resultado[i++] = '\n';
             puntoEncontrado = 1;
-            resultado[i] = '\n';
-            i++;
             espacioEncontrado = 0;
             enterEncontrado = 0;
         }
-        // reemplaza salto de linea por espacio (codigos ascii)
-        else if (c == '\n' && !puntoEncontrado && !enterEncontrado) {
-            resultado[i] = ' ';
-            i++;
+
+        else if (c == '\n' && !puntoEncontrado && !enterEncontrado && !espacioEncontrado) {
+            resultado[i++] = ' ';
+            enterEncontrado = 1;
             puntoEncontrado = 0;
             espacioEncontrado = 0;
-            enterEncontrado = 1;
         }
     }
-    if (i>0 && resultado[i-1] == '\n') {
+    // nos aseguramos de agregar terminador al final de la cadena
+    if (i>1) {
         resultado[i-1]='\0';
     }
     
+    // copiamos el resultado en un puntero a char, para retornarlo al scope del main
     char* resultadoCopia = malloc((sizeof(char)*i)+1);
     strcpy(resultadoCopia, resultado);
-    //printf("resultado: %s\n", resultadoCopia);
+
     fclose(archivoEntrada);
     return resultadoCopia;
 }
+
 
 int main(int argc, char** argv) {
 
@@ -88,11 +85,15 @@ int main(int argc, char** argv) {
     strcpy(rutaArtista, RUTA_A_LEER);
     strcat(rutaArtista, argv[1]);
 
-    struct dirent *pDirent;
-    DIR *controladorDir;
-    controladorDir = opendir(rutaArtista);
+    char comandoVolcarNombres[60] = "ls ";
+    strcat(comandoVolcarNombres, rutaArtista);
+    strcat(comandoVolcarNombres, " > archivos.txt");
+    system(comandoVolcarNombres);
 
-    if (controladorDir == NULL) {
+    FILE* archivoNombres;
+    archivoNombres = fopen("archivos.txt", "r");
+    
+    if (archivoNombres == NULL) {
         printf("Error al abrir el archivo. Revisar argumento pasado.\n");
         return -1;
     }
@@ -102,24 +103,34 @@ int main(int argc, char** argv) {
     strcat(nomArchivoDestino, argv[1]);
     strcat(nomArchivoDestino, ".txt");
     archivoDestino = fopen(nomArchivoDestino, "w");
+    
+    if (archivoDestino == NULL) {
+        printf("Hubo un error al abrir el archivo\n");
+        return -1;
+    }
 
     char rutaTexto[100];
     char* textoProcesado;
-
+    char linea[LONGITUD_MAX_LINEA];
+    
     // recorrer directorio
-    while ((pDirent = readdir(controladorDir)) != NULL) {
-        // ignorar directorios ocultos
-        if (pDirent->d_name[0] != '.') {
-            strcpy(rutaTexto, rutaArtista);
-            strcat(rutaTexto, "/");
-            strcat(rutaTexto, pDirent->d_name);
-            textoProcesado = procesar_texto(rutaTexto);
-            fputs(textoProcesado, archivoDestino);
-            fputc('\n', archivoDestino);
-            free(textoProcesado);
-        }
+    while( fgets(linea, LONGITUD_MAX_LINEA, archivoNombres)) {
+        strcpy(rutaTexto, rutaArtista);
+        strcat(rutaTexto, "/");
+        strcat(rutaTexto, linea);
+        rutaTexto[strlen(rutaTexto)-1] = '\0';
+        printf("rutatexto: %s\n", rutaTexto);
+        textoProcesado = procesar_texto(rutaTexto);
+        fputs(textoProcesado, archivoDestino);
+        fputc('\n', archivoDestino);
+        free(textoProcesado);
     }
-    closedir(controladorDir);
     fclose(archivoDestino);
+
+    // llamada a python
+    char comandoLlamadaPython[] = "python3 main.py ";
+    strcat(comandoLlamadaPython, argv[1]);
+    system(comandoLlamadaPython);
+
     return 0;
 }
