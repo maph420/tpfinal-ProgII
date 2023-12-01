@@ -16,8 +16,7 @@ def armar_grupos_de_dos(l, aparicionesParejas):
     return aparicionesParejas
         
 
-def apariciones_grupos():
-    rutaArtista = "Entradas/" + argv[1] + ".txt"
+def apariciones_grupos(rutaArtista):
     archivoEntradas = open(rutaArtista, 'r')
     frecuenciaGrupos = {}
     
@@ -75,22 +74,26 @@ def completar_frase(frase, palabraCandidata, archivo):
     
 
 
-def obtener_candidatos(datoFrecuencias, nombreArtista):
-    rutaArtista = "Salidas/"+nombreArtista+".txt"
+def obtener_candidatos(datoFrecuencias, rutaArtista):
     archivoSalida = open(rutaArtista, 'w')
     
     rutaFrases = "Frases/" + argv[1] + ".txt"
     archivoFrases = open(rutaFrases, 'r')
-    candidatos = []
-    print("datoFrecuencias: ", datoFrecuencias)
-    print("----------------")
+    
+    for key, value in datoFrecuencias.items():
+        print(f"{key}->{value}")
+        
+    #print("datoFrecuencias: ", datoFrecuencias)
+    
+    #print("----------------")
     for frase in archivoFrases:
         listaPalabras = frase.split()
-        print(listaPalabras)
+        #print(listaPalabras)
         
         posPalabraFaltante = obtener_pos_pal_faltante(listaPalabras)
         palabraAnterior = ""
         palabraPosterior = ""
+        candidato = ""
         
         t1 = ("", 0)
         t2 = ("", 0)
@@ -102,10 +105,9 @@ def obtener_candidatos(datoFrecuencias, nombreArtista):
             candidato = t1[0]
             #print("candidato: ", candidato)
             
-        if ((posPalabraFaltante < len(listaPalabras)-1) or candidato == ""):
+        if ((posPalabraFaltante < len(listaPalabras)-1) and candidato == ""):
             palabraPosterior = listaPalabras[posPalabraFaltante+1]
             t2 = obtener_may_frecuencia_der(datoFrecuencias, palabraPosterior)
-            #print("t2: ", t2)
             if t2[0] != "":
                 candidato = t2[0]
         # buscar posibles palabras anteriores
@@ -121,9 +123,10 @@ def main():
         print("Cantidad incorrecta de argumentos. Saliendo...")
         exit(-1)    
 
-    frecuencias = {}
-    frecuencias = apariciones_grupos()
-    obtener_candidatos(frecuencias, argv[1])
+    rutaArtista = "Entradas/" + argv[1] + ".txt"
+    frecuencias = apariciones_grupos(rutaArtista)
+    rutaSalida = "Salidas/" + argv[1] + ".txt"
+    obtener_candidatos(frecuencias, rutaSalida)
 
 if __name__ == "__main__":
     main()
