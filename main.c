@@ -12,6 +12,12 @@
 #define LONGITUD_MAX_LINEA 255
 
 //funciones
+/*char* obtener_textos(char* rutaArtista) {
+
+}*/
+
+
+
 char* procesar_texto(char* nomTexto) {
     char c, resultado[CANT_CARACTERES_MAX];
     int i = 0, puntoEncontrado = 0, espacioEncontrado = 0, enterEncontrado = 0;
@@ -84,6 +90,8 @@ int main(int argc, char** argv) {
     char rutaArtista[100];
     strcpy(rutaArtista, RUTA_A_LEER);
     strcat(rutaArtista, argv[1]);
+
+    //char* nombres = obtener_textos(rutaArtista);
 
     char comandoVolcarNombres[60] = "ls ";
     strcat(comandoVolcarNombres, rutaArtista);
