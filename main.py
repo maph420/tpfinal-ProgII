@@ -1,47 +1,129 @@
 from sys import argv
 
 # [1,2,3] -> [(1,2), (2,3)]
-def armar_grupos_de_dos(l):
-    listaTuplas = []
+def armar_grupos_de_dos(l, aparicionesParejas):
     i=0
     j=1
     while (j < len(l)):
         t = (l[i], l[j])
-        listaTuplas.append(t)
+        if t in aparicionesParejas.keys():
+            aparicionesParejas[t] +=1
+        else:
+            aparicionesParejas[t] = 1
         i+=1
         j+=1
-    return listaTuplas
+    #print(aparicionesParejas)
+    return aparicionesParejas
         
 
-def parse_entries():
+def apariciones_grupos():
     rutaArtista = "Entradas/" + argv[1] + ".txt"
     archivoEntradas = open(rutaArtista, 'r')
-    i=0
-    l = []
+    frecuenciaGrupos = {}
     
-    for a in archivoEntradas:
-        l += armar_grupos_de_dos(a.split())
-        i+=1
-    print(l)
+    for linea in archivoEntradas:
+        frecuenciaGrupos = (armar_grupos_de_dos(linea.split(), frecuenciaGrupos))
+    #print(frecuenciaGrupos)
     archivoEntradas.close()
-    return {}
+    return frecuenciaGrupos
+
+def obtener_pos_pal_faltante(frase):
+    i=0
+    encontrado = 0
+    pospal = 0
+    while (i < len(frase) and (not encontrado)):
+        if (frase[i] == '_'):
+            encontrado = 1
+            pospal = i
+        else:
+            i += 1
+    return pospal
+
+def obtener_may_frecuencia_izq(datoFrecuencias, palAnterior):
+    mayorfreq = 1
+    palMayorFreq = ""    
+    for (pal1, pal2) in datoFrecuencias.keys():
+        if pal1 == palAnterior:
+            if palMayorFreq == "":
+                palMayorFreq = pal2
+            if datoFrecuencias[(pal1,pal2)] > mayorfreq:
+                mayorfreq = datoFrecuencias[(pal1,pal2)]
+                palMayorFreq = pal2
+    return (palMayorFreq, mayorfreq)
+
+def obtener_may_frecuencia_der(datoFrecuencias, palPosterior):
+    mayorfreq = 1
+    palMayorFreq = ""    
+    for (pal1, pal2) in datoFrecuencias.keys():
+        if pal2 == palPosterior:
+            if palMayorFreq == "":
+                palMayorFreq = pal1
+            if datoFrecuencias[(pal1,pal2)] > mayorfreq:
+                mayorfreq = datoFrecuencias[(pal1,pal2)]
+                palMayorFreq = pal1
+    return (palMayorFreq, mayorfreq)
+
+def completar_frase(frase, palabraCandidata, archivo):
+    listaFrase = frase.split()
+    i=0
+    for palabra in frase:
+        if palabra == "_":
+            archivo.write(palabraCandidata.upper())
+        else:
+            archivo.write(palabra)
+    archivo.write("\n")
+    
 
 
-def completar_frases():
+def obtener_candidatos(datoFrecuencias, nombreArtista):
+    rutaArtista = "Salidas/"+nombreArtista+".txt"
+    archivoSalida = open(rutaArtista, 'w')
+    
     rutaFrases = "Frases/" + argv[1] + ".txt"
     archivoFrases = open(rutaFrases, 'r')
-    
+    candidatos = []
+    print("datoFrecuencias: ", datoFrecuencias)
+    print("----------------")
+    for frase in archivoFrases:
+        listaPalabras = frase.split()
+        print(listaPalabras)
+        
+        posPalabraFaltante = obtener_pos_pal_faltante(listaPalabras)
+        palabraAnterior = ""
+        palabraPosterior = ""
+        
+        t1 = ("", 0)
+        t2 = ("", 0)
+        
+        # sabemos que como mínimo alguno de los dos if valdrá (exceptuando para la cadena vacia)
+        if (posPalabraFaltante > 0):
+            palabraAnterior = listaPalabras[posPalabraFaltante-1]
+            t1 = obtener_may_frecuencia_izq(datoFrecuencias, palabraAnterior)
+            candidato = t1[0]
+            #print("candidato: ", candidato)
+            
+        if ((posPalabraFaltante < len(listaPalabras)-1) or candidato == ""):
+            palabraPosterior = listaPalabras[posPalabraFaltante+1]
+            t2 = obtener_may_frecuencia_der(datoFrecuencias, palabraPosterior)
+            #print("t2: ", t2)
+            if t2[0] != "":
+                candidato = t2[0]
+        # buscar posibles palabras anteriores
+        completar_frase(frase, candidato, archivoSalida)
+        
+        
     archivoFrases.close()
-
+    archivoSalida.close()
+    return
 
 def main():
     if (len(argv) != 2):
         print("Cantidad incorrecta de argumentos. Saliendo...")
         exit(-1)    
 
-    entradas = {}
-    entradas = parse_entries()
-
+    frecuencias = {}
+    frecuencias = apariciones_grupos()
+    obtener_candidatos(frecuencias, argv[1])
 
 if __name__ == "__main__":
     main()

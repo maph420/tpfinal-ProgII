@@ -1,2 +1,4 @@
-elamordespuesdelamor.txt
-unvestidoyunamor.txt
+Dos_mundos.txt
+El_libro_de_la_selva.txt
+En_marcha_estoy.txt
+La_gallina_turuleca.txt
