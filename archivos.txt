@@ -1,0 +1,3 @@
+flaca.txt
+mienfermedad.txt
+tequieroigual.txt

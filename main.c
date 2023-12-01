@@ -3,7 +3,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include<ctype.h>
-#include<dirent.h>
 
 //macros
 #define RUTA_A_LEER "Textos/"
@@ -12,11 +11,34 @@
 #define LONGITUD_MAX_LINEA 255
 
 //funciones
-/*char* obtener_textos(char* rutaArtista) {
+char** obtener_textos(char* rutaArtista) {
+    char linea[LONGITUD_MAX_LINEA], comandoVolcarNombres[50];
+    char** textos = malloc(sizeof(char *)*10);
+    int i=0;
+    FILE* archivoNombres;
 
-}*/
+    strcpy(comandoVolcarNombres, "ls ");
+    strcat(comandoVolcarNombres, rutaArtista);
+    strcat(comandoVolcarNombres, " > archivos.txt");
+    system(comandoVolcarNombres);
 
-
+    archivoNombres = fopen("archivos.txt", "r");
+    
+    if (archivoNombres == NULL) {
+        printf("Error al abrir el archivo. Revisar argumento pasado.\n");
+        exit(-1);
+    }
+    
+    while( fgets(linea, LONGITUD_MAX_LINEA, archivoNombres)) {
+        textos[i] = malloc(sizeof(char)*50);
+        strcpy(textos[i], linea);
+        i++;
+    }
+    // aseguramos de colocar una marca que indique el fin de la lista
+    textos[i] = NULL;
+    fclose(archivoNombres);
+    return textos;
+}
 
 char* procesar_texto(char* nomTexto) {
     char c, resultado[CANT_CARACTERES_MAX];
@@ -79,66 +101,56 @@ char* procesar_texto(char* nomTexto) {
     return resultadoCopia;
 }
 
+void llamar_python(char* args) {
+    char comandoLlamadaPython[40];
+    strcpy(comandoLlamadaPython, "python3 main.py ");
+    strcat(comandoLlamadaPython, args);
+    system(comandoLlamadaPython);
+}
 
 int main(int argc, char** argv) {
+
+    char rutaArtista[100], nomArchivoDestino[100], rutaTexto[100], *textoProcesado;
+    FILE* archivoDestino;
 
     if (argc != 2) {
         printf("Numero de argumentos incorrecta.\nUso: ./main nombre_de_artista\n");
         return 0;
     }
-  
-    char rutaArtista[100];
+    
     strcpy(rutaArtista, RUTA_A_LEER);
     strcat(rutaArtista, argv[1]);
 
-    //char* nombres = obtener_textos(rutaArtista);
-
-    char comandoVolcarNombres[60] = "ls ";
-    strcat(comandoVolcarNombres, rutaArtista);
-    strcat(comandoVolcarNombres, " > archivos.txt");
-    system(comandoVolcarNombres);
-
-    FILE* archivoNombres;
-    archivoNombres = fopen("archivos.txt", "r");
-    
-    if (archivoNombres == NULL) {
-        printf("Error al abrir el archivo. Revisar argumento pasado.\n");
-        return -1;
-    }
-    char nomArchivoDestino[100];
-    FILE* archivoDestino;
     strcpy(nomArchivoDestino, RUTA_A_ESCRIBIR);
     strcat(nomArchivoDestino, argv[1]);
     strcat(nomArchivoDestino, ".txt");
     archivoDestino = fopen(nomArchivoDestino, "w");
-    
+
     if (archivoDestino == NULL) {
         printf("Hubo un error al abrir el archivo\n");
         return -1;
     }
 
-    char rutaTexto[100];
-    char* textoProcesado;
-    char linea[LONGITUD_MAX_LINEA];
-    
-    // recorrer directorio
-    while( fgets(linea, LONGITUD_MAX_LINEA, archivoNombres)) {
+    char** textos = obtener_textos(rutaArtista);
+    int i=0;
+    while (textos[i] != NULL) {
         strcpy(rutaTexto, rutaArtista);
         strcat(rutaTexto, "/");
-        strcat(rutaTexto, linea);
+        strcat(rutaTexto, textos[i]);
+
         rutaTexto[strlen(rutaTexto)-1] = '\0';
-        printf("rutatexto: %s\n", rutaTexto);
         textoProcesado = procesar_texto(rutaTexto);
         fputs(textoProcesado, archivoDestino);
         fputc('\n', archivoDestino);
+
         free(textoProcesado);
+        free(textos[i]);
+        i++;
     }
+    free(textos);
     fclose(archivoDestino);
 
-    // llamada a python
-    char comandoLlamadaPython[] = "python3 main.py ";
-    strcat(comandoLlamadaPython, argv[1]);
-    system(comandoLlamadaPython);
-
+    llamar_python(argv[1]);
+    
     return 0;
 }
