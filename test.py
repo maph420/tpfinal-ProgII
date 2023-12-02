@@ -8,4 +8,18 @@ def create_triplets(lista):
 # Ejemplo de uso
 input_list = [1, 2, 3, 4, 5]
 result = create_triplets(input_list)
-print(result)
+#print(result)
+
+def fun(frase):
+    listaPals = frase.split()
+    i = 0
+    encontrado = 0
+    while (i < len(listaPals) and not encontrado):
+        if '_' in listaPals[i]:
+            encontrado = 1
+        else:
+            i+=1
+    return ''.join(listaPals[:i])
+    
+a = fun("hola como _, andas")
+print("lista:", a)

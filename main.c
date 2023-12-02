@@ -66,6 +66,13 @@ char* procesar_texto(char* nomTexto) {
             espacioEncontrado = 0;
             enterEncontrado = 0;
         }
+
+        else if ((c>= '0' && c<= '9')) {
+            resultado[i++] = c;
+            puntoEncontrado = 0;
+            espacioEncontrado = 0;
+            enterEncontrado = 0;
+        }
  
         else if (c == ' ' && !espacioEncontrado && !puntoEncontrado && !enterEncontrado) {
             resultado[i++] = c;
