@@ -2,44 +2,31 @@ from sys import argv
 from random import randint
 
 # [1,2,3] -> [(1,2), (2,3)]
-def agrupar(lista, frecGrupos):
+def agrupar(lista, bigrama, trigrama):
     i=0
+    j=0
     while (i < len(lista)-2):
-        grupo = (lista[i], lista[i+1], lista[i+2])
-        if grupo in frecGrupos.keys():
-            frecGrupos[grupo] +=1
+        grupoTrigrama = (lista[i], lista[i+1], lista[i+2])
+        grupoBigrama = (lista[j], lista[j+1])
+        if grupoTrigrama in trigrama.keys():
+            trigrama[grupoTrigrama] +=1
         else:
-            frecGrupos[grupo] = 1
-        i+=1
-    return frecGrupos
-      
-def agrupar2(lista, frecGrupos):
-    i=0
-    while (i < len(lista)-1):
-        grupo = (lista[i], lista[i+1])
-        if grupo in frecGrupos.keys():
-            frecGrupos[grupo] +=1
+            trigrama[grupoTrigrama] = 1
+        if grupoBigrama in bigrama.keys():
+            bigrama[grupoBigrama] += 1
         else:
-            frecGrupos[grupo] = 1
+            bigrama[grupoBigrama] = 1
         i+=1
-    return frecGrupos
+        j+=1
+    return (bigrama, trigrama)
 
 def frecuencia_grupos(rutaEntrada):
     archivoEntradas = open(rutaEntrada, 'r')
-    frecuenciaGrupos = {}
+    bigrama = {}
+    trigrama = {}
     
     for linea in archivoEntradas:
-        frecuenciaGrupos = (agrupar(linea.split(), frecuenciaGrupos))
-    #print(frecuenciaGrupos)
-    archivoEntradas.close()
-    return frecuenciaGrupos
-
-def frecuencia_grupos2(rutaEntrada):
-    archivoEntradas = open(rutaEntrada, 'r')
-    frecuenciaGrupos = {}
-    
-    for linea in archivoEntradas:
-        frecuenciaGrupos = (agrupar2(linea.split(), frecuenciaGrupos))
+        frecuenciaGrupos = agrupar(linea.split(), bigrama, trigrama)
     #print(frecuenciaGrupos)
     archivoEntradas.close()
     return frecuenciaGrupos
@@ -75,8 +62,6 @@ def obtener_may_frecuencia_der(datoFrecuencias, palPosterior, palAnterior):
                 palMayorFreq = pal1
     return (palMayorFreq, mayorfreq)
 
-
-
 def may_frec_izq(datoFrecuencias, palsAnteriores):
     candidato = ""
     for (pal1,pal2,pal3) in datoFrecuencias.keys():
@@ -109,9 +94,12 @@ def completar_frase(lineaFrase, palabraCandidata, archivo):
         else:
             archivo.write(palabra)
             
-def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases, rutaEntrada):
+def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases):
     archivoSalida = open(rutaArtista, 'w')
     archivoFrases = open(rutaFrases, 'r')
+    bigrama = datoFrecuencias[0]
+    trigrama = datoFrecuencias[1]
+    
     
     for lineaFrase in archivoFrases:
         print("-------------------")
@@ -123,7 +111,6 @@ def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases, rutaEntrada):
         palAnt = ""
         palPost = ""
         candidato = ""
-        df = {}
         
         candidatoPorIzq = ("", 0)
         candidatoPorDer = ("", 0)
@@ -135,17 +122,16 @@ def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases, rutaEntrada):
         if ((posPalabraFaltante < len(listaPalabras)-2)):
             palabrasPosteriores = (listaPalabras[posPalabraFaltante+1],listaPalabras[posPalabraFaltante+2])  
         #print("DATOFRECUENCIAS: ", datoFrecuencias)
-        candidato = may_frec_izq(datoFrecuencias, palabrasAnteriores)
+        candidato = may_frec_izq(trigrama, palabrasAnteriores)
         if (candidato == ""):
-            candidato = may_frec_der(datoFrecuencias, palabrasPosteriores)
+            candidato = may_frec_der(trigrama, palabrasPosteriores)
         if (candidato == ""):
-            df = frecuencia_grupos2(rutaEntrada)
             if posPalabraFaltante > 0:
                 palAnt = listaPalabras[posPalabraFaltante-1]
             if ((posPalabraFaltante < len(listaPalabras)-1)):
                 palPost = listaPalabras[posPalabraFaltante+1]
-            candidatoPorIzq = obtener_may_frecuencia_izq(df, palAnt, palPost)  
-            candidatoPorDer = obtener_may_frecuencia_der(df, palPost, palAnt)
+            candidatoPorIzq = obtener_may_frecuencia_izq(bigrama, palAnt, palPost)  
+            candidatoPorDer = obtener_may_frecuencia_der(bigrama, palPost, palAnt)
             candidato = candidatoPorIzq[0] if candidatoPorIzq[1] >= candidatoPorDer[1] else candidatoPorDer[0]
         
         print("CANDIDATO:", candidato)
@@ -165,13 +151,16 @@ def main():
     rutaEntrada = "Entradas/" + argv[1] + ".txt"
     frecuencias = frecuencia_grupos(rutaEntrada)
     
-    for key, value in frecuencias.items():
+    print("BIGRAMAS:\n")
+    for key, value in frecuencias[0].items():
         print(f"{key}->{value}")
-    
+    print("TRIGRAMAS:\n")
+    for key, value in frecuencias[0].items():
+        print(f"{key}->{value}")
     
     rutaSalida = "Salidas/" + argv[1] + ".txt"
     rutaFrases = "Frases/" + argv[1] + ".txt"
-    obtener_candidatos(frecuencias, rutaSalida, rutaFrases, rutaEntrada)
+    obtener_candidatos(frecuencias, rutaSalida, rutaFrases)
 
 if __name__ == "__main__":
     main()
