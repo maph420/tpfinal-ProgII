@@ -7,23 +7,22 @@ def agrupar(lista, bigrama, trigrama):
     j=0
     while (i < len(lista)-2):
         grupoTrigrama = (lista[i], lista[i+1], lista[i+2])
+        print("TYPE:", type(grupoTrigrama))
+        trigrama.update([grupoTrigrama])
         grupoBigrama = (lista[j], lista[j+1])
-        if grupoTrigrama in trigrama.keys():
-            trigrama[grupoTrigrama] +=1
-        else:
-            trigrama[grupoTrigrama] = 1
         if grupoBigrama in bigrama.keys():
             bigrama[grupoBigrama] += 1
         else:
             bigrama[grupoBigrama] = 1
         i+=1
         j+=1
+    print("TRIGRAMA:", trigrama)
     return (bigrama, trigrama)
 
 def frecuencia_grupos(rutaEntrada):
     archivoEntradas = open(rutaEntrada, 'r')
     bigrama = {}
-    trigrama = {}
+    trigrama = set()
     
     for linea in archivoEntradas:
         frecuenciaGrupos = agrupar(linea.split(), bigrama, trigrama)
@@ -31,7 +30,7 @@ def frecuencia_grupos(rutaEntrada):
     archivoEntradas.close()
     return frecuenciaGrupos
 
-def obtener_may_frecuencia_izq(datoFrecuencias, palAnterior, palPosterior):
+def frec_bigrama_izq(datoFrecuencias, palAnterior, palPosterior):
     mayorfreq = 0
     palMayorFreq = ""    
     for (pal1, pal2) in datoFrecuencias.keys():
@@ -47,7 +46,7 @@ def obtener_may_frecuencia_izq(datoFrecuencias, palAnterior, palPosterior):
                 palMayorFreq = pal2
     return (palMayorFreq, mayorfreq)
 
-def obtener_may_frecuencia_der(datoFrecuencias, palPosterior, palAnterior):
+def frec_bigrama_der(datoFrecuencias, palPosterior, palAnterior):
     mayorfreq = 0
     palMayorFreq = ""    
     for (pal1, pal2) in datoFrecuencias.keys():
@@ -62,16 +61,16 @@ def obtener_may_frecuencia_der(datoFrecuencias, palPosterior, palAnterior):
                 palMayorFreq = pal1
     return (palMayorFreq, mayorfreq)
 
-def may_frec_izq(datoFrecuencias, palsAnteriores):
+def frec_trigrama_izq(trigramas, palsAnteriores):
     candidato = ""
-    for (pal1,pal2,pal3) in datoFrecuencias.keys():
+    for (pal1,pal2,pal3) in trigramas:
         if (pal1,pal2) == palsAnteriores:
             candidato = pal3
     return candidato
 
-def may_frec_der(datoFrecuencias, palsPosteriores): 
+def frec_trigrama_der(trigramas, palsPosteriores): 
     candidato = ""
-    for (pal1,pal2,pal3) in datoFrecuencias.keys():
+    for (pal1,pal2,pal3) in trigramas:
         if (pal2,pal3) == palsPosteriores:
             candidato = pal1
     return candidato
@@ -100,7 +99,6 @@ def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases):
     bigrama = datoFrecuencias[0]
     trigrama = datoFrecuencias[1]
     
-    
     for lineaFrase in archivoFrases:
         print("-------------------")
         print(lineaFrase)
@@ -122,16 +120,16 @@ def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases):
         if ((posPalabraFaltante < len(listaPalabras)-2)):
             palabrasPosteriores = (listaPalabras[posPalabraFaltante+1],listaPalabras[posPalabraFaltante+2])  
         #print("DATOFRECUENCIAS: ", datoFrecuencias)
-        candidato = may_frec_izq(trigrama, palabrasAnteriores)
+        candidato = frec_trigrama_izq(trigrama, palabrasAnteriores)
         if (candidato == ""):
-            candidato = may_frec_der(trigrama, palabrasPosteriores)
+            candidato = frec_trigrama_der(trigrama, palabrasPosteriores)
         if (candidato == ""):
             if posPalabraFaltante > 0:
                 palAnt = listaPalabras[posPalabraFaltante-1]
             if ((posPalabraFaltante < len(listaPalabras)-1)):
                 palPost = listaPalabras[posPalabraFaltante+1]
-            candidatoPorIzq = obtener_may_frecuencia_izq(bigrama, palAnt, palPost)  
-            candidatoPorDer = obtener_may_frecuencia_der(bigrama, palPost, palAnt)
+            candidatoPorIzq = frec_bigrama_izq(bigrama, palAnt, palPost)  
+            candidatoPorDer = frec_bigrama_der(bigrama, palPost, palAnt)
             candidato = candidatoPorIzq[0] if candidatoPorIzq[1] >= candidatoPorDer[1] else candidatoPorDer[0]
         
         print("CANDIDATO:", candidato)
