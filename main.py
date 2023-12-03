@@ -7,7 +7,6 @@ def agrupar(lista, bigrama, trigrama):
     j=0
     while (i < len(lista)-2):
         grupoTrigrama = (lista[i], lista[i+1], lista[i+2])
-        print("TYPE:", type(grupoTrigrama))
         trigrama.update([grupoTrigrama])
         grupoBigrama = (lista[j], lista[j+1])
         if grupoBigrama in bigrama.keys():
@@ -16,7 +15,6 @@ def agrupar(lista, bigrama, trigrama):
             bigrama[grupoBigrama] = 1
         i+=1
         j+=1
-    print("TRIGRAMA:", trigrama)
     return (bigrama, trigrama)
 
 def frecuencia_grupos(rutaEntrada):
