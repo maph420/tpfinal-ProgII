@@ -1,25 +1,25 @@
-def create_triplets(lista):
-    grupos = []
-    for i in range(len(lista) - 2):
-        grupo = tuple(lista[i:i+3])
-        grupos.append(grupo)
-    return grupos
+from collections import defaultdict
 
-# Ejemplo de uso
-input_list = [1, 2, 3, 4, 5]
-result = create_triplets(input_list)
-#print(result)
+def crear_diccionario_palabras(s):
+    palabras = s.split()
+    diccionario = defaultdict(lambda: defaultdict(int))
 
-def fun(frase):
-    listaPals = frase.split()
-    i = 0
-    encontrado = 0
-    while (i < len(listaPals) and not encontrado):
-        if '_' in listaPals[i]:
-            encontrado = 1
-        else:
-            i+=1
-    return ''.join(listaPals[:i])
-    
-a = fun("hola como _, andas")
-print("lista:", a)
+    for i in range(len(palabras) - 1):
+        palabra_actual = palabras[i]
+        palabra_siguiente = palabras[i + 1]
+
+        diccionario[palabra_actual][palabra_siguiente] += 1
+
+    # Convertir el diccionario interno a tuplas
+    for palabra, vecinos in diccionario.items():
+        diccionario[palabra] = tuple((vecino, cantidad) for vecino, cantidad in vecinos.items())
+
+    return diccionario
+
+# Ejemplo de uso:
+cadena_ejemplo = "flaca no me claves tus punales por la espalda tan profundo no me duelen no me hacen mal"
+resultado = crear_diccionario_palabras(cadena_ejemplo)
+
+# Imprimir el resultado
+for palabra in resultado:
+    print(palabra)
