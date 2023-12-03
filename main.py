@@ -33,13 +33,14 @@ def frec_trigrama_izq(trigramas, palsAnteriores):
     for (pal1,pal2,pal3) in trigramas:
         if (pal1,pal2) == palsAnteriores:
             candidato = pal3
-        elif (palsAnteriores != "" and pal1 == palsAnteriores[0]):
-            if (palsAnteriores[1] != ""):
-                candidatoAux = pal3
-                if (pal2 == palsAnteriores[1]):
-                    candidato = pal3
-            else:
-                candidato = pal2
+        elif (palsAnteriores != ""):
+            if (pal1 == palsAnteriores[0]):
+                if (palsAnteriores[1] != ""):
+                    candidatoAux = pal3
+                else:
+                    candidato = pal2
+            if (pal2 == palsAnteriores[1]):
+                candidato = pal3
     if (candidato == ""):
         candidato = candidatoAux
     return candidato
@@ -51,13 +52,14 @@ def frec_trigrama_der(trigramas, palsPosteriores):
     for (pal1,pal2,pal3) in trigramas:
         if (pal2,pal3) == palsPosteriores:
             candidato = pal1
-        elif palsPosteriores != "" and pal3 == palsPosteriores[1]:
-            if (palsPosteriores[0] != ""):
-                candidatoAux = pal1
-                if (pal2 == palsPosteriores[0]):
-                    candidato = pal1
-            else:
-                candidato = pal2
+        elif palsPosteriores != "":
+            if (pal3 == palsPosteriores[1]):
+                if (palsPosteriores[0] != ""):
+                    candidatoAux = pal1
+                else:
+                    candidato = pal2
+            if (pal2 == palsPosteriores[0]):
+                candidato = pal1
     if (candidato == ""):
         candidato = candidatoAux
     return candidato
