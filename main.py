@@ -1,28 +1,18 @@
 from sys import argv
-# [1,2,3] -> [(1,2), (2,3)]
-def agrupar(lista, bigrama, trigrama):
+
+def agrupar(lista, trigrama):
     i=0
-    j=0
     while (i < len(lista)-2):
         grupoTrigrama = (lista[i], lista[i+1], lista[i+2])
-        trigrama.update([grupoTrigrama])
-        grupoBigrama = (lista[j], lista[j+1])
-        if grupoBigrama in bigrama.keys():
-            bigrama[grupoBigrama] += 1
-        else:
-            bigrama[grupoBigrama] = 1
+        trigrama.add(grupoTrigrama)
         i+=1
-        j+=1
-    return (bigrama, trigrama)
+    return trigrama
 
 def frecuencia_grupos(rutaEntrada):
     archivoEntradas = open(rutaEntrada, 'r')
-    bigrama = {}
     trigrama = set()
-    
     for linea in archivoEntradas:
-        frecuenciaGrupos = agrupar(linea.split(), bigrama, trigrama)
-    #print(frecuenciaGrupos)
+        frecuenciaGrupos = agrupar(linea.split(), trigrama)
     archivoEntradas.close()
     return frecuenciaGrupos
 
@@ -63,6 +53,7 @@ def frec_trigrama_der(trigramas, palsPosteriores):
     if (candidato == ""):
         candidato = candidatoAux
     return candidato
+
 def pos_pal_faltante(listaPals):
     i=0
     encontrado = 0
@@ -82,11 +73,9 @@ def completar_frase(lineaFrase, palabraCandidata, archivo):
         else:
             archivo.write(palabra)
             
-def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases):
+def obtener_candidatos(trigrama, rutaArtista, rutaFrases):
     archivoSalida = open(rutaArtista, 'w')
     archivoFrases = open(rutaFrases, 'r')
-    bigrama = datoFrecuencias[0]
-    trigrama = datoFrecuencias[1]
     
     for lineaFrase in archivoFrases:
         print("-------------------")
@@ -97,9 +86,7 @@ def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases):
         palabrasPosteriores = ""
 
         candidato = ""
-        
-        
-        
+          
         if (posPalabraFaltante == 1):
             palabrasAnteriores = (listaPalabras[posPalabraFaltante-1], "")
         elif (posPalabraFaltante > 1):
@@ -109,7 +96,6 @@ def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases):
             palabrasPosteriores = ("", listaPalabras[posPalabraFaltante+1])
         if ((posPalabraFaltante < len(listaPalabras)-2)):
             palabrasPosteriores = (listaPalabras[posPalabraFaltante+1],listaPalabras[posPalabraFaltante+2])  
-        #print("DATOFRECUENCIAS: ", datoFrecuencias)
         
         candidato = frec_trigrama_izq(trigrama, palabrasAnteriores)
         
@@ -118,8 +104,6 @@ def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases):
             candidato = frec_trigrama_der(trigrama, palabrasPosteriores)
       
         print("CANDIDATO:", candidato)
-        #print("entonces, el mas adecuado es:", candidato)
-        # buscar posibles palabras anteriores
         completar_frase(lineaFrase, candidato, archivoSalida)
         
     archivoFrases.close()
@@ -133,13 +117,9 @@ def main():
 
     rutaEntrada = "Entradas/" + argv[1] + ".txt"
     frecuencias = frecuencia_grupos(rutaEntrada)
-    ''''
-    print("BIGRAMAS:\n")
-    for key, value in frecuencias[0].items():
-        print(f"{key}->{value}")
-    '''
+   
     print("TRIGRAMAS:\n")
-    for trigrama in frecuencias[1]:
+    for trigrama in frecuencias:
         print(trigrama)
     
     rutaSalida = "Salidas/" + argv[1] + ".txt"
