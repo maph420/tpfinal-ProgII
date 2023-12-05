@@ -1,23 +1,35 @@
-words = "flaca no me claves tus punales por la espalda tan profundo no me duelen no me hacen mal
-lejos en el centro de la tierra las raices del amor donde estaban quedaran
-entre el no me olvides me deje nuestros abriles olvidados en el fondo del placard del cuarto de invitados eran tiempos dorados un pasado mejor
-aunque casi me equivoco y te digo poco a poco no me mientas no me digas la verdad no te quedes callada no levantes la voz ni me pidas perdon
-aunque casi te confieso que tambien he sido un perro companero
-un perro ideal que aprendio a ladrar y a volver al hogar para poder comer
-flaca no me claves tus punales por la espalda tan profundo no me duelen no me hacen mal
-lejos en el centro de la tierra las raices del amor donde estaban quedaran
-estoy vencido porque el mundo me hizo asi no puedo cambiar
-soy el remedio sin receta y tu amor mi enfermedad
-estoy vencido porque el cuerpo de los dos es mi debilidad
-esta vez el dolor va a terminar"
+def word_occurrence_dict(listaPals):
+    ocurrencias = {}
+    i=0
+    palIzq = ""
+    palDer = ""
+    for word in listaPals:
+        if i>0:
+            palIzq = listaPals[i - 1]
+       
+        if i < len(listaPals)-1:
+            palDer = listaPals[i + 1]
+       
+        if word not in ocurrencias:
+            ocurrencias[word] = ({}, {})
 
+        if palIzq != "":
+            if palIzq not in ocurrencias[word][0]:
+                ocurrencias[word][0][palIzq] = 1
+            else:
+                ocurrencias[word][0][palIzq] += 1
+        if palDer != "":
+            if palDer not in ocurrencias[word][1]:
+                ocurrencias[word][1][palDer] = 1
+            else:
+                ocurrencias[word][1][palDer] += 1
+        i+=1
+    return ocurrencias
 
-n = 3  # o cualquier otro valor deseado
-ngrams_dict = {}
+# Example usage:
+str = "la indomita luz se hizo carne en mi y lo deje todo por esta soledad y leo revistas en la tempestad hice el sacrificio abrace la cruz al amanecer rezo rezo rezo rezo por vos mori sin morir y me abrace al dolor y lo deje todo por esta soledad"
+word_list = str.split()
+result = word_occurrence_dict(word_list)
+for key, val in result.items():
+    print(key,"->",val)
 
-for i in range(len(words) - n):
-    key = tuple(words[i:i+n])
-    value = ngrams_dict.get(key, [])
-    if i + n < len(words):
-        value.append(words[i + n])
-    ngrams_dict[key] = value

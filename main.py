@@ -1,65 +1,69 @@
 from sys import argv
 
-def agrupar(lista, trigrama):
+# [1,2,3] -> [(1,2), (2,3)]
+def agrupar(listaPals, ocurrencias):
     i=0
-    while (i < len(lista)-2):
-        grupoTrigrama = (lista[i], lista[i+1], lista[i+2])
-        trigrama.add(grupoTrigrama)
-        i+=1
-    return trigrama
+    palIzq = ""
+    palDer = ""
+    for word in listaPals:
+        if i>0:
+            palIzq = listaPals[i-1]
+       
+        if i < len(listaPals)-1:
+            palDer = listaPals[i+1]
+       
+        if word not in ocurrencias:
+            ocurrencias[word] = ({}, {})
 
+        if palIzq != "":
+            if palIzq not in ocurrencias[word][0]:
+                ocurrencias[word][0][palIzq] = 1
+            else:
+                ocurrencias[word][0][palIzq] += 1
+        if palDer != "":
+            if palDer not in ocurrencias[word][1]:
+                ocurrencias[word][1][palDer] = 1
+            else:
+                ocurrencias[word][1][palDer] += 1
+        i+=1
+    return ocurrencias
+        
 def frecuencia_grupos(rutaEntrada):
     archivoEntradas = open(rutaEntrada, 'r')
-    trigrama = set()
+    frecuenciaGrupos = {}
     for linea in archivoEntradas:
-        frecuenciaGrupos = agrupar(linea.split(), trigrama)
+        frecuenciaGrupos = (agrupar(linea.split(), frecuenciaGrupos))
     archivoEntradas.close()
     return frecuenciaGrupos
 
-def frec_trigrama_izq(trigramas, palsAnteriores):
-    candidato = ""
-    candidatoAux = ""
-    print("PALS ANTERIORES: ", palsAnteriores)
-    for (pal1,pal2,pal3) in trigramas:
-        if (pal1,pal2) == palsAnteriores:
-            candidato = pal3
-        elif (palsAnteriores != ""):
-            if (pal1 == palsAnteriores[0]):
-                if (palsAnteriores[1] != ""):
-                    candidatoAux = pal3
-                else:
-                    candidato = pal2
-            if (pal2 == palsAnteriores[1]):
-                candidato = pal3
-    if (candidato == ""):
-        candidato = candidatoAux
-    return candidato
 
-def frec_trigrama_der(trigramas, palsPosteriores): 
+def obtener_may_frecuencia_izq(datoFrecuencias, palAnterior, palPosterior):
     candidato = ""
-    candidatoAux = ""
-    print("PALS POSTERIORES: ", palsPosteriores)
-    for (pal1,pal2,pal3) in trigramas:
-        if (pal2,pal3) == palsPosteriores:
-            candidato = pal1
-        elif palsPosteriores != "":
-            if (pal3 == palsPosteriores[1]):
-                if (palsPosteriores[0] != ""):
-                    candidatoAux = pal1
-                else:
-                    candidato = pal2
-            if (pal2 == palsPosteriores[0]):
-                candidato = pal1
-    if (candidato == ""):
-        candidato = candidatoAux
-    return candidato
+    mayFrec = 0
+    if palAnterior in datoFrecuencias.keys():
+        for key,val in datoFrecuencias[palAnterior][1].items():
+            if val > mayFrec and key != palPosterior:
+                mayFrec = val
+                candidato = key
+    return (candidato, mayFrec)
+
+# decidi hacer funciones distintas para mejor lejibilidad
+def obtener_may_frecuencia_der(datoFrecuencias, palAnterior, palPosterior):
+    candidato = ""
+    mayFrec = 0
+    if palPosterior in datoFrecuencias.keys():
+        for key,val in datoFrecuencias[palPosterior][0].items():
+            if val > mayFrec and val != palAnterior:
+                mayFrec = val
+                candidato = key
+    return (candidato, mayFrec)
 
 def pos_pal_faltante(listaPals):
     i=0
     encontrado = 0
     pospal = 0
     while (i < len(listaPals) and (not encontrado)):
-        if ('_' in listaPals[i]):
+        if (listaPals[i] == '_'):
             encontrado = 1
             pospal = i
         else:
@@ -68,42 +72,51 @@ def pos_pal_faltante(listaPals):
 
 def completar_frase(lineaFrase, palabraCandidata, archivo):
     for palabra in lineaFrase:
-        if "_" in palabra:
+        if palabra == "_":
             archivo.write(palabraCandidata.upper())
         else:
             archivo.write(palabra)
-            
-def obtener_candidatos(trigrama, rutaArtista, rutaFrases):
+    
+def obtener_candidatos(datoFrecuencias, rutaArtista, rutaFrases):
     archivoSalida = open(rutaArtista, 'w')
     archivoFrases = open(rutaFrases, 'r')
     
+    for key, value in datoFrecuencias.items():
+        print(f"{key}->{value}")
+        
+    #print("datoFrecuencias: ", datoFrecuencias)
+    #print("----------------")
+    
     for lineaFrase in archivoFrases:
-        print("-------------------")
-        print(lineaFrase)
+        print("linea: ", lineaFrase)
         listaPalabras = lineaFrase.split()
         posPalabraFaltante = pos_pal_faltante(listaPalabras)
-        palabrasAnteriores = ""
-        palabrasPosteriores = ""
-
+        palabraAnterior = ""
+        palabraPosterior = ""
         candidato = ""
-          
-        if (posPalabraFaltante == 1):
-            palabrasAnteriores = (listaPalabras[posPalabraFaltante-1], "")
-        elif (posPalabraFaltante > 1):
-            palabrasAnteriores = (listaPalabras[posPalabraFaltante-2],listaPalabras[posPalabraFaltante-1])
+        
+        candidatoPorIzq = ("",0)
+        candidatoPorDer = ("",0)
+        
+        # sabemos que como mínimo alguno de los dos if valdrá (exceptuando para la cadena vacia)
+        if (posPalabraFaltante > 0):
+            palabraAnterior = listaPalabras[posPalabraFaltante-1]
             
-        if ((posPalabraFaltante == len(listaPalabras)-2)):
-            palabrasPosteriores = ("", listaPalabras[posPalabraFaltante+1])
-        if ((posPalabraFaltante < len(listaPalabras)-2)):
-            palabrasPosteriores = (listaPalabras[posPalabraFaltante+1],listaPalabras[posPalabraFaltante+2])  
+        if ((posPalabraFaltante < len(listaPalabras)-1)):
+            palabraPosterior = listaPalabras[posPalabraFaltante+1]
+            
+        print("palabra anterior: ", palabraAnterior)
+        print("palabra posterior: ", palabraPosterior)    
         
-        candidato = frec_trigrama_izq(trigrama, palabrasAnteriores)
+        candidatoPorIzq = obtener_may_frecuencia_izq(datoFrecuencias, palabraAnterior, palabraPosterior)
+        print("por izquierda, la palabra candidata es:", candidatoPorIzq[0], "con apariciones: ", candidatoPorIzq[1])
         
-        
-        if (candidato == ""):
-            candidato = frec_trigrama_der(trigrama, palabrasPosteriores)
-      
-        print("CANDIDATO:", candidato)
+        candidatoPorDer = obtener_may_frecuencia_der(datoFrecuencias, palabraPosterior, palabraAnterior)
+        print("por derecha, la palabra candidata es:", candidatoPorDer[0], "con apariciones: ", candidatoPorDer[1])
+            
+        candidato = candidatoPorIzq[0] if candidatoPorIzq[1] >= candidatoPorDer[1] else candidatoPorDer[0]
+        print("entonces, el mas adecuado es:", candidato)
+        # buscar posibles palabras anteriores
         completar_frase(lineaFrase, candidato, archivoSalida)
         
     archivoFrases.close()
@@ -117,10 +130,6 @@ def main():
 
     rutaEntrada = "Entradas/" + argv[1] + ".txt"
     frecuencias = frecuencia_grupos(rutaEntrada)
-   
-    print("TRIGRAMAS:\n")
-    for trigrama in frecuencias:
-        print(trigrama)
     
     rutaSalida = "Salidas/" + argv[1] + ".txt"
     rutaFrases = "Frases/" + argv[1] + ".txt"
