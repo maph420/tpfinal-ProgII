@@ -1,17 +1,10 @@
 from sys import argv
 from random import choice
 
-# [1,2,3] -> [(1,2), (2,3)]
-def agrupar(listaPals, ocurrencias):
-    i=0
-    palIzq = ""
-    palDer = ""
-    for pal in listaPals:
-        if i>0:
-            palIzq = listaPals[i-1]
-       
-        if i < len(listaPals)-1:
-            palDer = listaPals[i+1]
+def armar_dict_frecuencias(listaPals, ocurrencias):
+    for i, pal in enumerate(listaPals):
+        palIzq = listaPals[i-1] if i > 0 else ""
+        palDer = listaPals[i+1] if i < len(listaPals)-1 else ""
        
         if pal not in ocurrencias:
             ocurrencias[pal] = ({}, {})
@@ -26,10 +19,9 @@ def agrupar(listaPals, ocurrencias):
                 ocurrencias[pal][1][palDer] = 1
             else:
                 ocurrencias[pal][1][palDer] += 1
-        i+=1
     return ocurrencias
    
-def otro_agrupar(listaPals, ocurrenciasIzq, ocurrenciasDer):
+def armar_dicts_bigramas(listaPals, ocurrenciasIzq, ocurrenciasDer):
     i=0
     while i < len(listaPals):
         if (i < len(listaPals)-2):
@@ -47,32 +39,31 @@ def otro_agrupar(listaPals, ocurrenciasIzq, ocurrenciasDer):
 
 def frecuencia_grupos(rutaEntrada):
     archivoEntradas = abrir_archivo(rutaEntrada, 'r')
-    frecuenciaGrupos = {}
-    otraFrecuenciasIzq = {}
-    otraFrecuenciasDer = {}
+    frecuenciaGrupos, otraFrecuenciasIzq, otraFrecuenciasDer = {}, {}, {}
     for linea in archivoEntradas:
-        frecuenciaGrupos = agrupar(linea.split(), frecuenciaGrupos)
-        otraFrecuencias = otro_agrupar(linea.split(), otraFrecuenciasIzq, otraFrecuenciasDer)
+        dictFrecuencias = armar_dict_frecuencias(linea.split(), frecuenciaGrupos)
+        dictsBigramas = armar_dicts_bigramas(linea.split(), otraFrecuenciasIzq, otraFrecuenciasDer)
     archivoEntradas.close()
-    return (frecuenciaGrupos, otraFrecuencias)
+    return (dictFrecuencias, dictsBigramas)
 
 
-def obtener_may_frecuencia_izq(datoFrecuencias, palAnterior, palPosterior):
-    ultimaPal = True if palPosterior == "" else False
-    candidato = ""
-    candidatoAux = ""
-    frecAux = 0
-    mayFrec = 0
+def may_frecuencia_i(datoFrecuencias, palAnterior, palPosterior):
+    esUltimaPal = (palPosterior == "")
+    candidato, mayFrec = "", 0
+    candidatoAux, frecAux = "", 0
+    
     if palAnterior in datoFrecuencias.keys():
-        for key,val in datoFrecuencias[palAnterior][1].items():
-            if val > mayFrec and key != palPosterior and key != palAnterior:
+        for pal, cantAps in datoFrecuencias[palAnterior][1].items():
+            if cantAps > mayFrec and pal != palPosterior and pal != palAnterior:
                 # para evitar que una oracion termine con un -potencial- articulo (palabra de longitud 3 o menor)
-                if not ultimaPal or (ultimaPal and len(key)>3):
-                    mayFrec = val
-                    candidato = key
+                longitudValida = (len(pal) > 3)
+                if (not esUltimaPal) and longitudValida:
+                    mayFrec = cantAps
+                    candidato = pal
+                # aunque la condicion de arriba no cumpla, guardamos la palabra, en caso de no encontrar otra mejor
                 else:
-                    candidatoAux = key
-                    frecAux = val
+                    candidatoAux = pal
+                    frecAux = cantAps
     if (candidato == ""):
         candidato = candidatoAux
         mayFrec = frecAux
@@ -80,12 +71,10 @@ def obtener_may_frecuencia_izq(datoFrecuencias, palAnterior, palPosterior):
     return (candidato, mayFrec)
 
 # decidi hacer funciones distintas para mejor lejibilidad
-def obtener_may_frecuencia_der(datoFrecuencias, palAnterior, palPosterior):
-    ultimaPal = True if palPosterior == "" else False
-    candidato = ""
-    mayFrec = 0
-    candidatoAux = ""
-    frecAux = 0
+def may_frecuencia_d(datoFrecuencias, palAnterior, palPosterior):
+    ultimaPal = (palPosterior == "")
+    candidato, candidatoAux = "", ""
+    frecAux, mayFrec = 0, 0
     
     if palPosterior in datoFrecuencias.keys():
         for key,val in datoFrecuencias[palPosterior][0].items():
@@ -103,9 +92,7 @@ def obtener_may_frecuencia_der(datoFrecuencias, palAnterior, palPosterior):
     return (candidato, mayFrec)
 
 def pos_pal_faltante(listaPals):
-    i=0
-    encontrado = 0
-    pospal = 0
+    i, encontrado, pospal = 0, 0, 0
     while (i < len(listaPals) and (not encontrado)):
         if (listaPals[i] == '_'):
             encontrado = 1
@@ -133,11 +120,7 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
     archivoSalida = abrir_archivo(rutaArtista, 'w')
     archivoFrases = abrir_archivo(rutaFrases, 'r')
     
-    for key, value in datoFrecuencias.items():
-        print(f"{key}->{value}")
-    
     for lineaFrase in archivoFrases:
-        print("linea: ", lineaFrase)
         listaPalabras = lineaFrase.split()
         posPalabraFaltante = pos_pal_faltante(listaPalabras)
         palabrasAnteriores = ("","")
@@ -156,39 +139,20 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
         elif (posPalabraFaltante < (len(listaPalabras)-1)):
             palabrasPosteriores = (listaPalabras[posPalabraFaltante+1],"")
         
-        if (palabrasAnteriores != ""):
-            print("palabras anteriores:",palabrasAnteriores)
+        candidatotestIzq = bigramaIzq[palabrasAnteriores] if palabrasAnteriores in bigramaIzq else set()
+        candidatotestDer = bigramaDer[palabrasPosteriores] if palabrasPosteriores in bigramaDer else set()
         
-        if (palabrasPosteriores != ""):
-            print("palabras posteriores:",palabrasPosteriores)
-        
-        candidatotestIzq = set()
-        candidatotestDer = set()
-        
-        if palabrasAnteriores in bigramaIzq:
-            candidatotestIzq = bigramaIzq[palabrasAnteriores]
-        if palabrasPosteriores in bigramaDer:
-            candidatotestDer = bigramaDer[palabrasPosteriores]
-        
-        print("candidato test izq: ", candidatotestIzq)
-        print("candidato test der ", candidatotestDer)    
         if candidatotestIzq != set():
             candidato = candidatotestIzq.pop()
         elif candidatotestDer != set():
             candidato = candidatotestDer.pop()
         else:
-            print("SIN CANDIDATOS EXACTOS")
-
-            print("palabra anterior:", palabrasAnteriores[1], "palabra posterior:", palabrasPosteriores[0])
-            candidatoPorIzq = obtener_may_frecuencia_izq(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
-            print("por izquierda, la palabra candidata es:", candidatoPorIzq[0], "con apariciones: ", candidatoPorIzq[1])
-        
-            candidatoPorDer = obtener_may_frecuencia_der(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
-            print("por derecha, la palabra candidata es:", candidatoPorDer[0], "con apariciones: ", candidatoPorDer[1])
+     
+            candidatoPorIzq = may_frecuencia_i(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
+            candidatoPorDer = may_frecuencia_d(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
             
             candidato = candidatoPorIzq[0] if candidatoPorIzq[1] >= candidatoPorDer[1] else candidatoPorDer[0]
-            print("entonces, el mas adecuado es:", candidato)
-        
+           
         # como ultimo recurso, escoger el candidato de manera aleatoria entre las palabras del texto de entrada.
         if candidato == "":
             while (len(candidato) < 3):
@@ -216,14 +180,6 @@ def main():
     bigramaDer = dictsBigrama[0]
     bigramaIzq = dictsBigrama[1]
     
-    print("bigramas por izquierda:")
-    for k,v in bigramaIzq.items():
-        print(k,"->",v)
-    print("----")
-    print("bigramas por derecha:")
-    for k,v in bigramaDer.items():
-        print(k,"->",v)
-    print("----")
     obtener_candidatos(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases)
 
 if __name__ == "__main__":

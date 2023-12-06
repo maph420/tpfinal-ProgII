@@ -1,5 +1,2 @@
-cantarhastamorir.txt
-coloresperanza.txt
-guapa.txt
-quenomepierda.txt
-tratardeestarmejor.txt
+elamordespuesdelamor.txt
+unvestidoyunamor.txt
