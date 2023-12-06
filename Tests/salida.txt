@@ -1,0 +1,6 @@
+este es el primer texto
+el que le sigue al primero es el segundo
+este archivo de texto es el segundo
+por ultimo este es el tercero
+este es el ultimo texto
+
