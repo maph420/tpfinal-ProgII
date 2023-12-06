@@ -34,6 +34,8 @@ char** obtener_textos(char* rutaArtista) {
     // system retorna algo distinto de 0 si falla el comando
     if (system(comandoVolcarNombres) != 0) {
         printf("Error: Directorio no encontrado. Revisar argumento pasado. \n");
+        free(textos);
+        free(comandoVolcarNombres);
         return NULL;
     }
 
@@ -56,7 +58,7 @@ char** obtener_textos(char* rutaArtista) {
     return textos;
 }
 
-char* procesar_texto(char* nomTexto) {
+char* limpiar_texto(char* nomTexto) {
     char c, resultado[CANT_CARACTERES_MAX];
     int i = 0, puntoEncontrado = 0, espacioEncontrado = 0, enterEncontrado = 0;
 
@@ -116,11 +118,10 @@ char* procesar_texto(char* nomTexto) {
     return resultadoCopia;
 }
 
-int recorrer_y_procesar(char** textos, char* rutaArtista, char* nomArchivoDestino) {
-    char *textoProcesado;
+int recorrer_y_limpiar(char** textos, char* rutaArtista, char* nomArchivoDestino) {
+    char *textoLimpio;
     int i=0;
-    FILE* archivoDestino;
-    archivoDestino = fopen(nomArchivoDestino, "w");
+    FILE* archivoDestino = fopen(nomArchivoDestino, "w");
     
     if (archivoDestino == NULL) {
         printf("Error: No se pudo abrir el archivo de destino\n");
@@ -132,15 +133,15 @@ int recorrer_y_procesar(char** textos, char* rutaArtista, char* nomArchivoDestin
         // reemplazamos el "enter" al final de cada oracion por un terminador
         rutaTexto[strlen(rutaTexto)-1] = '\0';
 
-        textoProcesado = procesar_texto(rutaTexto);
-        if (textoProcesado == NULL) {
+        textoLimpio = limpiar_texto(rutaTexto);
+        if (textoLimpio == NULL) {
             return -1;
         }
-        fputs(textoProcesado, archivoDestino);
+        fputs(textoLimpio, archivoDestino);
         fputc('\n', archivoDestino);
 
         free(rutaTexto);
-        free(textoProcesado);
+        free(textoLimpio);
         free(textos[i]);
         i++;
     }
@@ -148,17 +149,21 @@ int recorrer_y_procesar(char** textos, char* rutaArtista, char* nomArchivoDestin
     return 0;
 }
 
-
-void llamar_python(char* args) {
+int llamar_python(char* args) {
     char* cadenasComando[] = {"python3 main.py ", args};
     char* comandoLlamadaPython = armar_cadena(cadenasComando, 2);
-    system(comandoLlamadaPython);
+    if (system(comandoLlamadaPython) != 0) {
+        printf("Error: no se pudo llamar al script en python.\n");
+        return -1;
+    }
+
     free(comandoLlamadaPython);
+    return 0;
 }
 
 int main(int argc, char** argv) {
 
-    int verif;
+    int verif, llamadaPython;
     char* rutaArtista, **textos, *nomArchivoDestino;
     
     if (argc != 2) {
@@ -170,13 +175,14 @@ int main(int argc, char** argv) {
 
     textos = obtener_textos(rutaArtista);
     if (textos == NULL) {
+        free(rutaArtista);
         return -1;
     }
 
     char* cadenasArchDest[] = {RUTA_A_ESCRIBIR, argv[1], ".txt"};
     nomArchivoDestino = armar_cadena(cadenasArchDest, 3);
 
-    verif = recorrer_y_procesar(textos, rutaArtista, nomArchivoDestino);
+    verif = recorrer_y_limpiar(textos, rutaArtista, nomArchivoDestino);
     if (verif != 0) {
         return -1;
     }
@@ -185,7 +191,9 @@ int main(int argc, char** argv) {
     free(rutaArtista);
     free(nomArchivoDestino);
 
-    llamar_python(argv[1]);
-    
+    llamadaPython = llamar_python(argv[1]);
+    if (llamadaPython != 0) {
+        return -1;
+    }
     return 0;
 }
