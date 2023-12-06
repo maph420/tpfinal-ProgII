@@ -158,22 +158,25 @@ void llamar_python(char* args) {
 
 int main(int argc, char** argv) {
 
+    int verif;
+    char* rutaArtista, **textos, *nomArchivoDestino;
+    
     if (argc != 2) {
         printf("Numero de argumentos incorrecta.\nUso: ./main nombre_de_artista\n");
         return 0;
     }
     char* cadenasRutaArtista[] = {RUTA_A_LEER, argv[1]};
-    char* rutaArtista = armar_cadena(cadenasRutaArtista, 2);
+    rutaArtista = armar_cadena(cadenasRutaArtista, 2);
 
-    char** textos = obtener_textos(rutaArtista);
+    textos = obtener_textos(rutaArtista);
     if (textos == NULL) {
         return -1;
     }
 
     char* cadenasArchDest[] = {RUTA_A_ESCRIBIR, argv[1], ".txt"};
-    char* nomArchivoDestino = armar_cadena(cadenasArchDest, 3);
+    nomArchivoDestino = armar_cadena(cadenasArchDest, 3);
 
-    int verif = recorrer_y_procesar(textos, rutaArtista, nomArchivoDestino);
+    verif = recorrer_y_procesar(textos, rutaArtista, nomArchivoDestino);
     if (verif != 0) {
         return -1;
     }

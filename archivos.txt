@@ -1,3 +1,5 @@
-flaca.txt
-mienfermedad.txt
-tequieroigual.txt
+cantarhastamorir.txt
+coloresperanza.txt
+guapa.txt
+quenomepierda.txt
+tratardeestarmejor.txt

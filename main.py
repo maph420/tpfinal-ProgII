@@ -185,7 +185,12 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
             
             candidato = candidatoPorIzq[0] if candidatoPorIzq[1] >= candidatoPorDer[1] else candidatoPorDer[0]
             print("entonces, el mas adecuado es:", candidato)
-            # buscar posibles palabras anteriores
+        
+        # como ultimo recurso, escoger el candidato de manera aleatoria entre las palabras del texto de entrada.
+        if candidato == "":
+            while (len(candidato) < 3):
+                candidato = choice(list(datoFrecuencias.keys()))
+       
         completar_frase(lineaFrase, candidato, archivoSalida)
         
     archivoFrases.close()
