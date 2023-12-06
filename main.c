@@ -7,12 +7,14 @@
 //macros
 #define RUTA_A_LEER "Textos/"
 #define RUTA_A_ESCRIBIR "Entradas/"
+#define RUTA_ARCHIVOS "archivos.txt"
 #define CANT_CARACTERES_MAX 2000
 #define LONGITUD_MAX_LINEA 255
+#define LONGITUD_MAX_COMANDO 100
 
 //funciones
 char* armar_cadena(char* palabras[], int cantPalabras) {
-    char* comando = malloc(sizeof(char)*50);
+    char* comando = malloc(sizeof(char)*100);
     comando[0] = '\0';
     for (int i=0; i<cantPalabras; i++) {
         strcat(comando, palabras[i]);
@@ -31,14 +33,14 @@ char** obtener_textos(char* rutaArtista) {
 
     // system retorna algo distinto de 0 si falla el comando
     if (system(comandoVolcarNombres) != 0) {
-        printf("Directorio no encontrado. \n");
+        printf("Error: Directorio no encontrado. Revisar argumento pasado. \n");
         return NULL;
     }
 
-    archivoNombres = fopen("archivos.txt", "r");
+    archivoNombres = fopen(RUTA_ARCHIVOS, "r");
     
     if (archivoNombres == NULL) {
-        printf("Error al abrir el archivo. Revisar argumento pasado.\n");
+        printf("Error: no se pudo abrir el archivo de nombres. Revisar argumento pasado.\n");
         return NULL;
     }
     
@@ -114,43 +116,20 @@ char* procesar_texto(char* nomTexto) {
     return resultadoCopia;
 }
 
-void llamar_python(char* args) {
-    char* cadenasComando[] = {"python3 main.py ", args};
-    char* comandoLlamadaPython = armar_cadena(cadenasComando, 2);
-    system(comandoLlamadaPython);
-    free(comandoLlamadaPython);
-}
-
-int main(int argc, char** argv) {
-    int i=0;
+int recorrer_y_procesar(char** textos, char* rutaArtista, char* nomArchivoDestino) {
     char *textoProcesado;
+    int i=0;
     FILE* archivoDestino;
-
-    if (argc != 2) {
-        printf("Numero de argumentos incorrecta.\nUso: ./main nombre_de_artista\n");
-        return 0;
-    }
-    char* cadenasRutaArtista[] = {RUTA_A_LEER, argv[1]};
-    char* rutaArtista = armar_cadena(cadenasRutaArtista, 2);
-
-    char* cadenasArchDest[] = {RUTA_A_ESCRIBIR, argv[1], ".txt"};
-    char* nomArchivoDestino = armar_cadena(cadenasArchDest, 3);
-    
     archivoDestino = fopen(nomArchivoDestino, "w");
     
     if (archivoDestino == NULL) {
-        printf("Hubo un error al abrir el archivo\n");
+        printf("Error: No se pudo abrir el archivo de destino\n");
         return -1;
     }
-
-    char** textos = obtener_textos(rutaArtista);
-    if (textos == NULL) {
-        return -1;
-    }
-
     while (textos[i] != NULL) {
         char* cadenasRutaTexto[] = {rutaArtista, "/", textos[i]};
         char* rutaTexto = armar_cadena(cadenasRutaTexto, 3);
+        // reemplazamos el "enter" al final de cada oracion por un terminador
         rutaTexto[strlen(rutaTexto)-1] = '\0';
 
         textoProcesado = procesar_texto(rutaTexto);
@@ -165,10 +144,43 @@ int main(int argc, char** argv) {
         free(textos[i]);
         i++;
     }
+    fclose(archivoDestino);
+    return 0;
+}
+
+
+void llamar_python(char* args) {
+    char* cadenasComando[] = {"python3 main.py ", args};
+    char* comandoLlamadaPython = armar_cadena(cadenasComando, 2);
+    system(comandoLlamadaPython);
+    free(comandoLlamadaPython);
+}
+
+int main(int argc, char** argv) {
+
+    if (argc != 2) {
+        printf("Numero de argumentos incorrecta.\nUso: ./main nombre_de_artista\n");
+        return 0;
+    }
+    char* cadenasRutaArtista[] = {RUTA_A_LEER, argv[1]};
+    char* rutaArtista = armar_cadena(cadenasRutaArtista, 2);
+
+    char** textos = obtener_textos(rutaArtista);
+    if (textos == NULL) {
+        return -1;
+    }
+
+    char* cadenasArchDest[] = {RUTA_A_ESCRIBIR, argv[1], ".txt"};
+    char* nomArchivoDestino = armar_cadena(cadenasArchDest, 3);
+
+    int verif = recorrer_y_procesar(textos, rutaArtista, nomArchivoDestino);
+    if (verif != 0) {
+        return -1;
+    }
+
     free(textos);
     free(rutaArtista);
     free(nomArchivoDestino);
-    fclose(archivoDestino);
 
     llamar_python(argv[1]);
     
