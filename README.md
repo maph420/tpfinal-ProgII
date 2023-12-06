@@ -9,3 +9,10 @@ Para correr los tests en C:
 
 > gcc functions.c tests.c -Wall -gstabs -o tests
 > ./tests
+
+Para correr los tests en Python:
+En caso de tener pytest, instalarlo:
+> pip install pytest
+
+Una vez teniendo pytest:
+> python3 -m pytest tests.py

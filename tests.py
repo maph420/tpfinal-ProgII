@@ -22,5 +22,5 @@ def test_pos_pal_faltante():
     assert pos_pal_faltante(["_"],) == 0
     # este caso no resulta relevante (asumiendo que las frases a completar nunca son vacias)
     assert pos_pal_faltante([]) == 0
-    
+
 test_pos_pal_faltante()
