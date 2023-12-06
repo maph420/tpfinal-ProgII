@@ -45,9 +45,8 @@ def otro_agrupar(listaPals, ocurrenciasIzq, ocurrenciasDer):
         i+=1
     return (ocurrenciasIzq, ocurrenciasDer)
 
- 
 def frecuencia_grupos(rutaEntrada):
-    archivoEntradas = open(rutaEntrada, 'r')
+    archivoEntradas = abrir_archivo(rutaEntrada, 'r')
     frecuenciaGrupos = {}
     otraFrecuenciasIzq = {}
     otraFrecuenciasDer = {}
@@ -122,9 +121,17 @@ def completar_frase(lineaFrase, palabraCandidata, archivo):
         else:
             archivo.write(palabra)
     
+def abrir_archivo(nomArch, modoLectura):
+    try:
+        arch = open(nomArch, modoLectura)
+    except:
+        print("No se pudo abrir el archivo",nomArch,".Saliendo...")
+        exit(-1)
+    return arch
+
 def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rutaFrases):
-    archivoSalida = open(rutaArtista, 'w')
-    archivoFrases = open(rutaFrases, 'r')
+    archivoSalida = abrir_archivo(rutaArtista, 'w')
+    archivoFrases = abrir_archivo(rutaFrases, 'r')
     
     for key, value in datoFrecuencias.items():
         print(f"{key}->{value}")
@@ -133,32 +140,27 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
         print("linea: ", lineaFrase)
         listaPalabras = lineaFrase.split()
         posPalabraFaltante = pos_pal_faltante(listaPalabras)
-        palabraAnterior = ""
-        palabraPosterior = ""
         palabrasAnteriores = ("","")
         palabrasPosteriores = ("","")
         candidato = ""
         
         candidatoPorIzq = ("",0)
         candidatoPorDer = ("",0)
-        
-        # sabemos que como mínimo alguno de los dos if valdrá (exceptuando para la cadena vacia)
-        if (posPalabraFaltante > 0):
-            palabraAnterior = listaPalabras[posPalabraFaltante-1]
-            
-        if ((posPalabraFaltante < len(listaPalabras)-1)):
-            palabraPosterior = listaPalabras[posPalabraFaltante+1]
             
         if (posPalabraFaltante > 1):
             palabrasAnteriores = (listaPalabras[posPalabraFaltante-2], listaPalabras[posPalabraFaltante-1])
+        elif (posPalabraFaltante > 0):
+            palabrasAnteriores = ("", listaPalabras[posPalabraFaltante-1])
         if (posPalabraFaltante < (len(listaPalabras)-2)):
             palabrasPosteriores = (listaPalabras[posPalabraFaltante+1], listaPalabras[posPalabraFaltante+2])
+        elif (posPalabraFaltante < (len(listaPalabras)-1)):
+            palabrasPosteriores = (listaPalabras[posPalabraFaltante+1],"")
         
         if (palabrasAnteriores != ""):
             print("palabras anteriores:",palabrasAnteriores)
         
         if (palabrasPosteriores != ""):
-            print("palabras anteriores:",palabrasPosteriores)
+            print("palabras posteriores:",palabrasPosteriores)
         
         candidatotestIzq = set()
         candidatotestDer = set()
@@ -176,11 +178,12 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
             candidato = candidatotestDer.pop()
         else:
             print("SIN CANDIDATOS EXACTOS")
-        
-            candidatoPorIzq = obtener_may_frecuencia_izq(datoFrecuencias, palabraAnterior, palabraPosterior)
+
+            print("palabra anterior:", palabrasAnteriores[1], "palabra posterior:", palabrasPosteriores[0])
+            candidatoPorIzq = obtener_may_frecuencia_izq(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
             print("por izquierda, la palabra candidata es:", candidatoPorIzq[0], "con apariciones: ", candidatoPorIzq[1])
         
-            candidatoPorDer = obtener_may_frecuencia_der(datoFrecuencias, palabraAnterior, palabraPosterior)
+            candidatoPorDer = obtener_may_frecuencia_der(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
             print("por derecha, la palabra candidata es:", candidatoPorDer[0], "con apariciones: ", candidatoPorDer[1])
             
             candidato = candidatoPorIzq[0] if candidatoPorIzq[1] >= candidatoPorDer[1] else candidatoPorDer[0]
@@ -198,17 +201,20 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
     return
 
 def main():
+    rutaEntrada = "Entradas/" + argv[1] + ".txt"
+    rutaSalida = "Salidas/" + argv[1] + ".txt"
+    rutaFrases = "Frases/" + argv[1] + ".txt"
+    
     if (len(argv) != 2):
         print("Cantidad incorrecta de argumentos. Saliendo...")
         exit(-1)    
 
-    rutaEntrada = "Entradas/" + argv[1] + ".txt"
-    frecuencias = frecuencia_grupos(rutaEntrada)
+    infoTexto = frecuencia_grupos(rutaEntrada)
     
-    frec1 = frecuencias[0]
-    frec2 = frecuencias[1]
-    bigramaDer = frec2[0]
-    bigramaIzq = frec2[1]
+    dictFrecuencias = infoTexto[0]
+    dictsBigrama = infoTexto[1]
+    bigramaDer = dictsBigrama[0]
+    bigramaIzq = dictsBigrama[1]
     
     print("bigramas por izquierda:")
     for k,v in bigramaIzq.items():
@@ -218,9 +224,7 @@ def main():
     for k,v in bigramaDer.items():
         print(k,"->",v)
     print("----")
-    rutaSalida = "Salidas/" + argv[1] + ".txt"
-    rutaFrases = "Frases/" + argv[1] + ".txt"
-    obtener_candidatos(frec1, bigramaIzq, bigramaDer, rutaSalida, rutaFrases)
+    obtener_candidatos(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases)
 
 if __name__ == "__main__":
     main()
