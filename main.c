@@ -36,6 +36,5 @@ int main(int argc, char** argv) {
         printf("Error: no se pudo llamar al script en python.\n");
         return -1;
     }
-    
     return 0;
 }
