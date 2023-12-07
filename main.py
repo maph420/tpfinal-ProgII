@@ -89,7 +89,7 @@ def frecuencia_grupos(rutaEntrada):
     archivoEntradas.close()
     return (dictFrecuencias, dictsBigramas)
 
-def may_frecuencia_i(dictFrecuencias, palAnterior, palPosterior):
+def may_frecuencia(dictFrecuencias, palAnterior, palPosterior):
     esUltimaPal = (palPosterior == "")
     candidato, mayFrec = "", 0
     candidatoAux, frecAux = "", 0
@@ -106,18 +106,7 @@ def may_frecuencia_i(dictFrecuencias, palAnterior, palPosterior):
                 else:
                     candidatoAux = pal
                     frecAux = cantAps
-    if (candidato == ""):
-        candidato = candidatoAux
-        mayFrec = frecAux
-    return (candidato, mayFrec)
 
-# decidi hacer funciones distintas para los diccionarios de palabras
-# a la izquierda (i)/ derecha(d) solo para mejorar la lejibilidad
-def may_frecuencia_d(dictFrecuencias, palAnterior, palPosterior):
-    esUltimaPal = (palPosterior == "")
-    candidato, mayFrec = "", 0
-    candidatoAux, frecAux = "", 0
-    
     if palPosterior in dictFrecuencias.keys():
         for pal, cantAps in dictFrecuencias[palPosterior][0].items():
             if cantAps > mayFrec and pal != palAnterior and pal != palPosterior: 
@@ -129,10 +118,11 @@ def may_frecuencia_d(dictFrecuencias, palAnterior, palPosterior):
                 else:
                     candidatoAux = pal
                     frecAux = cantAps
+
     if (candidato == ""):
         candidato = candidatoAux
         mayFrec = frecAux
-    return (candidato, mayFrec)
+    return candidato
 
 def pos_pal_faltante(listaPals):
     i, encontrado, pospal = 0, 0, 0
@@ -160,8 +150,7 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
         posPalabraFaltante = pos_pal_faltante(listaPalabras)
         palabrasAnteriores, palabrasPosteriores = ("",""), ("","")
         candidato = ""
-        candidatoIzq, candidatoDer = ("",0), ("",0)
-            
+        
         if (posPalabraFaltante > 1):
             palabrasAnteriores = (listaPalabras[posPalabraFaltante-2], listaPalabras[posPalabraFaltante-1])
         elif (posPalabraFaltante > 0):
@@ -182,10 +171,8 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
         # en caso de no encontrar una coincidencia exacta a traves de bigramas, tratar de hallar
         # una palabra adecuada basandose en la frecuencia de apariciones
         else:
-            candidatoIzq = may_frecuencia_i(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
-            candidatoDer = may_frecuencia_d(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
-            
-            candidato = candidatoIzq[0] if (candidatoIzq[1] >= candidatoDer[1]) else candidatoDer[0]
+            candidato = may_frecuencia(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
+        
            
         # como ultimo recurso, escoger el candidato de manera aleatoria entre las palabras del 
         # texto de entrada. Se prefiere que no sea un articulo.
