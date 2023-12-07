@@ -1,5 +1,5 @@
-#ifndef FUNCTIONS_H
-#define FUNCTIONS_H
+#ifndef FUNCIONES_H
+#define FUNCIONES_H
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>

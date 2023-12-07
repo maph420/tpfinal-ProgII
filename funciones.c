@@ -1,4 +1,4 @@
-#include "functions.h"
+#include "funciones.h"
 
 char* armar_cadena(char* palabras[], int cantPalabras) {
     char* comando = malloc(sizeof(char)*100);

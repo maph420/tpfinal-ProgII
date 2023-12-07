@@ -2,6 +2,7 @@
     "files.associations": {
         "stdio.h": "c",
         "assert.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "funciones.h": "c"
     }
 }
