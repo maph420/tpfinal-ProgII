@@ -127,6 +127,22 @@ def completar_frase(lineaFrase, palabraCandidata, archivo):
         else:
             archivo.write(palabra)
 
+def obtener_pal_anteriores(listaPalabras, posPal):
+    palabrasAnteriores = ("","")
+    if (posPal > 1):
+        palabrasAnteriores = (listaPalabras[posPal-2], listaPalabras[posPal-1])
+    elif (posPal > 0):
+        palabrasAnteriores = ("", listaPalabras[posPal-1])
+    return palabrasAnteriores
+
+def obtener_pal_posteriores(listaPalabras, posPal):
+    palabrasPosteriores = ("","")
+    if (posPal < (len(listaPalabras)-2)):
+        palabrasPosteriores = (listaPalabras[posPal+1], listaPalabras[posPal+2])
+    elif (posPal < (len(listaPalabras)-1)):
+        palabrasPosteriores = (listaPalabras[posPal+1],"")
+    return palabrasPosteriores
+    
 def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rutaFrases):
     archivoSalida = abrir_archivo(rutaArtista, 'w')
     archivoFrases = abrir_archivo(rutaFrases, 'r')
@@ -134,36 +150,28 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
     for lineaFrase in archivoFrases:
         listaPalabras = lineaFrase.split()
         posPalabraFaltante = pos_pal_faltante(listaPalabras)
-        palabrasAnteriores, palabrasPosteriores = ("",""), ("","")
         candidato = ""
         
-        if (posPalabraFaltante > 1):
-            palabrasAnteriores = (listaPalabras[posPalabraFaltante-2], listaPalabras[posPalabraFaltante-1])
-        elif (posPalabraFaltante > 0):
-            palabrasAnteriores = ("", listaPalabras[posPalabraFaltante-1])
+        palabrasAnteriores = obtener_pal_anteriores(listaPalabras, posPalabraFaltante)
+        palabrasPosteriores = obtener_pal_posteriores(listaPalabras, posPalabraFaltante)
+        
+        # buscar coincidencia por palabras a la izquierda
+        if palabrasAnteriores in bigramaIzq and bigramaIzq[palabrasAnteriores] != set():
+            candidato = bigramaIzq[palabrasAnteriores].pop()
             
-        if (posPalabraFaltante < (len(listaPalabras)-2)):
-            palabrasPosteriores = (listaPalabras[posPalabraFaltante+1], listaPalabras[posPalabraFaltante+2])
-        elif (posPalabraFaltante < (len(listaPalabras)-1)):
-            palabrasPosteriores = (listaPalabras[posPalabraFaltante+1],"")
+        # buscar coincidencia por palabras a la derecha
+        elif palabrasPosteriores in bigramaDer and bigramaDer[palabrasPosteriores] != set():
+            candidato = bigramaDer[palabrasPosteriores].pop()
         
-        candidatoBigramaI = bigramaIzq[palabrasAnteriores] if palabrasAnteriores in bigramaIzq else set()
-        candidatoBigramaD = bigramaDer[palabrasPosteriores] if palabrasPosteriores in bigramaDer else set()
-        
-        if candidatoBigramaI != set():
-            candidato = candidatoBigramaI.pop()
-        elif candidatoBigramaD != set():
-            candidato = candidatoBigramaD.pop()
         # en caso de no encontrar una coincidencia exacta a traves de bigramas, tratar de hallar
         # una palabra adecuada basandose en la frecuencia de apariciones
         else:
             candidato = may_frecuencia(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
         
-           
         # como ultimo recurso, escoger el candidato de manera aleatoria entre las palabras del 
         # texto de entrada. Se prefiere que no sea un articulo.
         if candidato == "":
-            while (len(candidato) < 3):
+            while (len(candidato) < 2):
                 candidato = choice(list(datoFrecuencias.keys()))
        
         completar_frase(lineaFrase, candidato, archivoSalida)

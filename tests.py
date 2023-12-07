@@ -1,42 +1,95 @@
-from main import armar_dict_frecuencias, armar_dicts_bigramas, frecuencia_grupos, may_frecuencia, pos_pal_faltante, completar_frase, obtener_candidatos
-
-#frecuencia_grupos(rutaEntrada)
-
-    
-# ?
-#obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rutaFrases)
+from main import armar_dict_frecuencias, armar_dicts_bigramas, may_frecuencia, pos_pal_faltante, completar_frase, obtener_pal_anteriores, obtener_pal_posteriores
    
+def test_obtener_pal_anteriores():
+    # Caso 1: lista vacia
+    result = obtener_pal_anteriores([], 0)
+    assert result == ("", "")
+
+    # Caso 2: palabra en la primer posicion
+    listaPalabras = ["sol", "brilla", "en", "el", "cielo"]
+    posPal = 0
+    result = obtener_pal_anteriores(listaPalabras, posPal)
+    assert result == ("", "")
+
+    # Caso 3: palabra en la segunda posicion
+    listaPalabras = ["sol", "brilla", "en", "el", "cielo"]
+    posPal = 1
+    result = obtener_pal_anteriores(listaPalabras, posPal)
+    assert result == ("", "sol")
+
+    # Caso 4: ejemplo generico
+    listaPalabras = ["sol", "brilla", "en", "el", "cielo"]
+    posPal = 3
+    result = obtener_pal_anteriores(listaPalabras, posPal)
+    assert result == ("brilla", "en")
+
+    # Caso 5: palabra en la ultima posicion
+    listaPalabras = ["sol", "brilla", "en", "el", "cielo"]
+    posPal = 4
+    result = obtener_pal_anteriores(listaPalabras, posPal)
+    assert result == ("en", "el")
+
+def test_obtener_pal_posteriores():
+    # Caso 1: lista vacia
+    listaPalabras = []
+    posPal = 0
+    result = obtener_pal_posteriores(listaPalabras, posPal)
+    assert result == ("", "")
+
+    # Caso 2: palabra en la primer posicion
+    listaPalabras = ["sol", "brilla", "en", "el", "cielo"]
+    posPal = 0
+    result = obtener_pal_posteriores(listaPalabras, posPal)
+    assert result == ("brilla", "en")
+
+    # Caso 3: caso generico
+    listaPalabras = ["en", "la", "cumbre", "nevada", "suele", "hacer", "frio"]
+    posPal = 3
+    result = obtener_pal_posteriores(listaPalabras, posPal)
+    assert result == ("suele", "hacer")
+
+    # Caso 4: palabra en penúltima posicion
+    listaPalabras = ["sol", "brilla", "en", "el", "cielo"]
+    posPal = 3
+    result = obtener_pal_posteriores(listaPalabras, posPal)
+    assert result == ("cielo", "")
+
+    # Caso 5: palabra en ultima posicion
+    listaPalabras = ["sol", "brilla", "en", "el", "cielo"]
+    posPal = 4
+    result = obtener_pal_posteriores(listaPalabras, posPal)
+    assert result == ("", "")
+
 def test_armar_dict_frecuencias():
-    
     # Caso 1: Lista de palabras vacia
-    listaPals1 = "".split()
-    dictTest1 = armar_dict_frecuencias(listaPals1, {})
-    assert dictTest1 == {}
+    listPals = "".split()
+    dictTest = armar_dict_frecuencias(listPals, {})
+    assert dictTest == {}
     
     # Caso 2: Lista con una unica palabra
-    listaPals2 = "unica".split()
-    dictTest2 = armar_dict_frecuencias(listaPals2, {})
-    assert dictTest2 == {'unica': ({}, {})}
+    listPals = "unica".split()
+    dictTest = armar_dict_frecuencias(listPals, {})
+    assert dictTest == {'unica': ({}, {})}
     
     # Caso 3: Lista con dos palabras
-    listaPals3 = "la luna".split()
-    dictTest3 = armar_dict_frecuencias(listaPals3, {})
-    assert dictTest3 == {'la': ({}, {'luna': 1}), 
+    listPals = "la luna".split()
+    dictTest = armar_dict_frecuencias(listPals, {})
+    assert dictTest == {'la': ({}, {'luna': 1}), 
                          'luna': ({'la': 1}, {})}
 
     # Caso 4: Lista sin ningun par de palabras juntos mas de una vez
-    listaPals4 = "la estrella fugaz de la noche".split()
-    dictTest4 = armar_dict_frecuencias(listaPals4, {})
-    assert dictTest4 == {'la': ({'de': 1}, {'estrella': 1, 'noche': 1}), 
+    listPals = "la estrella fugaz de la noche".split()
+    dictTest = armar_dict_frecuencias(listPals, {})
+    assert dictTest == {'la': ({'de': 1}, {'estrella': 1, 'noche': 1}), 
                         'estrella': ({'la': 1}, {'fugaz': 1}), 
                         'fugaz': ({'estrella': 1}, {'de': 1}), 
                         'de': ({'fugaz': 1}, {'la': 1}), 
                         'noche': ({'la': 1}, {})}
     
     # Caso 5: Lista con algunos pares de palabras juntos mas de una vez
-    listaPals5 = "el sol brilla y brilla ilumina el día día tras día día tras día día tras día".split()
-    dictTest5 = armar_dict_frecuencias(listaPals5, {})
-    assert dictTest5 == {'el': ({'ilumina': 1}, {'sol': 1, 'día': 1}), 
+    listPals = "el sol brilla y brilla ilumina el día día tras día día tras día día tras día".split()
+    dictTest = armar_dict_frecuencias(listPals, {})
+    assert dictTest == {'el': ({'ilumina': 1}, {'sol': 1, 'día': 1}), 
                          'sol': ({'el': 1}, {'brilla': 1}), 
                          'brilla': ({'sol': 1, 'y': 1}, {'y': 1, 'ilumina': 1}), 
                          'y': ({'brilla': 1}, {'brilla': 1}), 
@@ -47,45 +100,45 @@ def test_armar_dict_frecuencias():
 def test_armar_dicts_bigramas():    
     
     # Caso 1: lista de palabras vacia
-    listaPals1 = "".split()
-    dictTest1 = armar_dicts_bigramas(listaPals1, {}, {})
-    assert dictTest1[0] == {}
-    assert dictTest1[1] == {}
+    listPals = "".split()
+    dictTest = armar_dicts_bigramas(listPals, {}, {})
+    assert dictTest[0] == {}
+    assert dictTest[1] == {}
     
     # Caso 2: lista con una unica palabra
-    listaPals2 = "unica".split()
-    dictTest2 = armar_dicts_bigramas(listaPals2, {}, {})
-    assert dictTest2[0] == {}
-    assert dictTest2[1] == {}
+    listPals = "unica".split()
+    dictTest = armar_dicts_bigramas(listPals, {}, {})
+    assert dictTest[0] == {}
+    assert dictTest[1] == {}
     
     # Caso 3: lista con dos palabras
-    listaPals3 = "el dia".split()
-    dictTest3 = armar_dicts_bigramas(listaPals3, {}, {})
-    assert dictTest3[0] == {}
-    assert dictTest3[1] == {}
+    listPals = "el dia".split()
+    dictTest = armar_dicts_bigramas(listPals, {}, {})
+    assert dictTest[0] == {}
+    assert dictTest[1] == {}
     
     # Caso 4: lista de >2 palabras, con palabras repetidas no contiguas
-    listaPals4 = "naranja color naranja".split()
-    dictTest4 = armar_dicts_bigramas(listaPals4, {}, {})
-    assert dictTest4[0] == {('color', 'naranja'): {'naranja'}}
-    assert dictTest4[1] == {('naranja', 'color'): {'naranja'}}
+    listPals = "naranja color naranja".split()
+    dictTest = armar_dicts_bigramas(listPals, {}, {})
+    assert dictTest[0] == {('color', 'naranja'): {'naranja'}}
+    assert dictTest[1] == {('naranja', 'color'): {'naranja'}}
 
     # Caso 5: lista de >2 palabras, con palabras repetidas contiguas
-    listaPals5 = "luna luna azul".split()
-    dictTest5 = armar_dicts_bigramas(listaPals5, {}, {})
-    assert dictTest5[0] == {('luna', 'azul'): {'luna'}}
-    assert dictTest5[1] == {('luna', 'luna'): {'azul'}}
+    listPals = "luna luna azul".split()
+    dictTest = armar_dicts_bigramas(listPals, {}, {})
+    assert dictTest[0] == {('luna', 'azul'): {'luna'}}
+    assert dictTest[1] == {('luna', 'luna'): {'azul'}}
 
     # Caso 6: lista de >2 palabras generica 
-    listaPals6 = "el espadachin negro hizo su cometido de nuevo".split()
-    dictTest6 = armar_dicts_bigramas(listaPals6, {}, {})
-    assert dictTest6[0] == {('espadachin', 'negro'): {'el'}, 
+    listPals = "el espadachin negro hizo su cometido de nuevo".split()
+    dictTest = armar_dicts_bigramas(listPals, {}, {})
+    assert dictTest[0] == {('espadachin', 'negro'): {'el'}, 
                          ('negro', 'hizo'): {'espadachin'}, 
                          ('hizo', 'su'): {'negro'}, 
                          ('su', 'cometido'): {'hizo'}, 
                          ('cometido', 'de'): {'su'}, 
                          ('de', 'nuevo'): {'cometido'}}
-    assert dictTest6[1] == {('el', 'espadachin'): {'negro'}, 
+    assert dictTest[1] == {('el', 'espadachin'): {'negro'}, 
                             ('espadachin', 'negro'): {'hizo'}, 
                             ('negro', 'hizo'): {'su'}, 
                             ('hizo', 'su'): {'cometido'}, 
@@ -130,7 +183,6 @@ def test_may_frecuencia():
 
     # Caso 4: Encontrar candidato como ultima palabra
     # frase: hoy sale el sol o se apaga el sol
-    print("---")
     dictFrecuencias = {'hoy': ({}, {'sale': 1}), 
                        'sale': ({'hoy': 1}, {'el': 1}), 
                        'el': ({'sale': 1, 'apaga': 1}, {'sol': 2}), 
@@ -144,7 +196,6 @@ def test_may_frecuencia():
 
     # Caso 5: Encuentra dos posibles candidatos (misma frecuencia), por defecto se queda con el primero
     # Frase: el increible color el esperanzador color
-    print("---")
     dictFrecuencias = {'el': ({'color': 1}, {'increible': 1, 'esperanzador': 1}), 
                        'increible': ({'el': 1}, {'color': 1}), 
                        'color': ({'increible': 1, 'esperanzador': 1}, {'el': 1}), 
@@ -175,6 +226,9 @@ def test_completar_frase():
     
     archivoTests.close()
 
+# En tanto a las funciones frecuencia_grupos() y obtener_candidatos() no considere adecado hacerles un
+# testing, ya que dichas funciones se basan en una combinacion de distintas llamadas a las funciones testeadas
+# con anterioridad.
 
 def main():
     test_pos_pal_faltante()
@@ -182,7 +236,8 @@ def main():
     test_armar_dicts_bigramas()
     test_may_frecuencia()
     test_completar_frase()
-
+    test_obtener_pal_anteriores()
+    test_obtener_pal_posteriores()
 
 if __name__ == "__main__": 
     main()
