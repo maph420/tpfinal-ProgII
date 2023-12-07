@@ -187,7 +187,7 @@ def main():
     if (len(argv) != 2):
         print("Cantidad incorrecta de argumentos. Saliendo...")
         exit(-1)    
-
+    
     start = time.time()
     infoTexto = frecuencia_grupos(rutaEntrada)
     

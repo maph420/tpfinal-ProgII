@@ -52,7 +52,7 @@ void test_obtener_textos() {
 
     char** textos4 = obtener_textos("Textos/Cantante1");
     assert(textos4 == NULL);
-
+    
     liberar_textos(textos1);
     liberar_textos(textos2);
     liberar_textos(textos3);
@@ -72,26 +72,26 @@ void test_limpiar_texto() {
     printf("-------\n-Los test de limpiar_texto pasaron\n");
 }
 void test_recorrer_y_limpiar() {
-    char** textos1 = malloc(sizeof(char*)*4);
+    char** textos1 = malloc(sizeof(char*) * 4);
     // strdup reserva memoria a textos1[i] de manera dinamica, a diferencia de strcpy
     textos1[0] = strdup("texto1.txt\n");
     textos1[1] = strdup("texto2.txt\n");
     textos1[2] = strdup("texto3.txt\n");
     textos1[3] = NULL;
 
-    char *rutaArtista = malloc(sizeof(char)*50);
-    char *nomArchDestino = malloc(sizeof(char)*50);
+    char *rutaArtista = malloc(sizeof(char) * 50);
+    char *nomArchDestino = malloc(sizeof(char) * 50);
     strcpy(rutaArtista, "Textos/Cantante2");
     strcpy(nomArchDestino, "salida.txt");
 
     recorrer_y_limpiar(textos1, rutaArtista, nomArchDestino);
     FILE* archSalida = fopen("salida.txt", "r");
     char linea[LONGITUD_MAX_LINEA];
-    char** contenidoLinea = malloc(sizeof(char *)*30);
+    char** contenidoLinea = malloc(sizeof(char*) * 30);
     int i=0;
 
     while( fgets(linea, LONGITUD_MAX_LINEA, archSalida)) {
-        contenidoLinea[i] = malloc(sizeof(char)*50);
+        contenidoLinea[i] = malloc(sizeof(char) * 50);
         strcpy(contenidoLinea[i], linea);
         i++;
     }
