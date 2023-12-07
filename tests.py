@@ -1,10 +1,7 @@
-from main import armar_dict_frecuencias, armar_dicts_bigramas, frecuencia_grupos, may_frecuencia_i, may_frecuencia_d, pos_pal_faltante, completar_frase, obtener_candidatos
+from main import armar_dict_frecuencias, armar_dicts_bigramas, frecuencia_grupos, may_frecuencia, pos_pal_faltante, completar_frase, obtener_candidatos
 
 #frecuencia_grupos(rutaEntrada)
-    
-#may_frecuencia_d(datoFrecuencias, palAnterior, palPosterior)
-    
-#completar_frase(lineaFrase, palabraCandidata, archivo)
+
     
 # ?
 #obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rutaFrases)
@@ -46,8 +43,6 @@ def test_armar_dict_frecuencias():
                          'ilumina': ({'brilla': 1}, {'el': 1}), 
                          'día': ({'el': 1, 'día': 3, 'tras': 3}, {'día': 3, 'tras': 3}), 
                          'tras': ({'día': 3}, {'día': 3})}
-    print("Los test de armar_dict_frecuencias pasaron correctamente.")
-    print(armar_dict_frecuencias("hoy sale el sol hoy el sol brilla".split(), {}))
     
 def test_armar_dicts_bigramas():    
     
@@ -96,8 +91,6 @@ def test_armar_dicts_bigramas():
                             ('hizo', 'su'): {'cometido'}, 
                             ('su', 'cometido'): {'de'}, 
                             ('cometido', 'de'): {'nuevo'}}
-    
-    print("Los test de armar_dicts_bigramas pasaron correctamente.")
 
 def test_pos_pal_faltante():
     assert pos_pal_faltante(['el', 'dia', 'se', 'encuentra', '_']) == 4
@@ -106,14 +99,13 @@ def test_pos_pal_faltante():
     assert pos_pal_faltante(["_"],) == 0
     # este caso no resulta relevante (asumiendo que las frases a completar nunca son vacias)
     assert pos_pal_faltante([]) == 0
-    print("Los test de pos_pal_faltante pasaron correctamente.")
-
-def test_may_frecuencia_i():
+    
+def test_may_frecuencia():
     # Caso 1: Palabra anterior no esta en el diccionario
     dictFrecuencias = {}
     palAnterior, palPosterior = "sol", "brilla"
-    result = may_frecuencia_i(dictFrecuencias, palAnterior, palPosterior)
-    assert result == ("", 0)
+    result = may_frecuencia(dictFrecuencias, palAnterior, palPosterior)
+    assert result == ""
 
     # Caso 2: Palabra anterior está en el diccionario, pero no tiene frecuencias por derecha
     # brilla directamente no esta entre las claves del diccionario, entonces la unica alternativa
@@ -122,21 +114,74 @@ def test_may_frecuencia_i():
     dictFrecuencias = {"el": ({}, {'sol': 1}),
                         "sol": ({'el': 1}, {})}
     palAnterior, palPosterior = "sol", "brilla"
-    result = may_frecuencia_i(dictFrecuencias, palAnterior, palPosterior)
-    assert result == ("", 0)
+    result = may_frecuencia(dictFrecuencias, palAnterior, palPosterior)
+    assert result == ""
 
+    # Caso 3: Encuentra candidatos por izquierda y derecha, se queda con la izquierda
+    # frase: hoy sale el sol hoy el sol brilla
+    dictFrecuencias = {'hoy': ({'sol': 1}, {'sale': 1, 'el': 1}), 
+                       'sale': ({'hoy': 1}, {'el': 1}), 
+                       'el': ({'sale': 1, 'hoy': 1}, {'sol': 2}), 
+                       'sol': ({'el': 2}, {'hoy': 1, 'brilla': 1}), 
+                       'brilla': ({'sol': 1}, {})}
+    palAnterior, palPosterior = "el", "hoy"
+    result = may_frecuencia(dictFrecuencias, palAnterior, palPosterior)
+    assert result == "sol"  
 
-    # Caso de prueba 4: Palabra anterior con múltiples frecuencias a la derecha, elige la de mayor frecuencia
-    dictFrecuencias = {"sol": ({}, {"brilla": 2, "sale": 3, "amanecer": 1})}
-    palAnterior, palPosterior = "sol", "brilla"
-    result = may_frecuencia_i(dictFrecuencias, palAnterior, palPosterior)
-    assert result == ("sale", 3)
+    # Caso 4: Encontrar candidato como ultima palabra
+    # frase: hoy sale el sol o se apaga el sol
+    print("---")
+    dictFrecuencias = {'hoy': ({}, {'sale': 1}), 
+                       'sale': ({'hoy': 1}, {'el': 1}), 
+                       'el': ({'sale': 1, 'apaga': 1}, {'sol': 2}), 
+                       'sol': ({'el': 2}, {'o': 1}), 
+                       'o': ({'sol': 1}, {'se': 1}), 
+                       'se': ({'o': 1}, {'apaga': 1}), 
+                       'apaga': ({'se': 1}, {'el': 1})}
+    palAnterior, palPosterior = "el", ""
+    result = may_frecuencia(dictFrecuencias, palAnterior, palPosterior)
+    assert result == "sol"  
+
+    # Caso 5: Encuentra dos posibles candidatos (misma frecuencia), por defecto se queda con el primero
+    # Frase: el increible color el esperanzador color
+    print("---")
+    dictFrecuencias = {'el': ({'color': 1}, {'increible': 1, 'esperanzador': 1}), 
+                       'increible': ({'el': 1}, {'color': 1}), 
+                       'color': ({'increible': 1, 'esperanzador': 1}, {'el': 1}), 
+                       'esperanzador': ({'el': 1}, {'color': 1})}
+    palAnterior, palPosterior = "el", "color"
+    assert may_frecuencia(dictFrecuencias, palAnterior, palPosterior) == "increible"
+
+# recorremos unicamente una vez el archivo para verificar
+# los enters son agregados manualmente para separar las frases por renglones
+# (como trabaja la funcion)
+def test_completar_frase():
+    # con la opcion w+ se abre para escribir y leer, y en caso de escribir se pisa lo anterior
+    archivoTests = open("Tests/archivo_a_escribir.txt", 'w+')
+    
+    completar_frase("esta frase va a ser _\n", "completada", archivoTests)
+    completar_frase("el _ azul\n", "cielo", archivoTests)
+    completar_frase("_ frase contiene dos caracteres _\n", "esta", archivoTests)
+    completar_frase("dia_nublado\n", " ", archivoTests)
+    completar_frase("frase sin cambios\n", "palabra", archivoTests)
+    
+    frasesCompletas = ["esta frase va a ser COMPLETADA\n", "el CIELO azul\n",
+                       "ESTA frase contiene dos caracteres ESTA\n", "dia nublado\n",
+                       "frase sin cambios\n"]    
+    
+    for i, linea in enumerate(archivoTests):
+        if i<5: 
+            assert linea == frasesCompletas[i]
+    
+    archivoTests.close()
+
 
 def main():
     test_pos_pal_faltante()
     test_armar_dict_frecuencias()
     test_armar_dicts_bigramas()
-    test_may_frecuencia_i()
+    test_may_frecuencia()
+    test_completar_frase()
 
 
 if __name__ == "__main__": 

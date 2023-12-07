@@ -92,36 +92,22 @@ def frecuencia_grupos(rutaEntrada):
 def may_frecuencia(dictFrecuencias, palAnterior, palPosterior):
     esUltimaPal = (palPosterior == "")
     candidato, mayFrec = "", 0
-    candidatoAux, frecAux = "", 0
     
     if palAnterior in dictFrecuencias.keys():
         for pal, cantAps in dictFrecuencias[palAnterior][1].items():
             if cantAps > mayFrec and pal != palPosterior and pal != palAnterior:
                 # para evitar que una oracion termine con un -potencial- articulo (palabra de longitud 3 o menor)
-                longitudValida = (len(pal) > 3)
+                longitudValida = (len(pal) > 2)
                 if (not esUltimaPal) or (esUltimaPal and longitudValida):
                     mayFrec = cantAps
                     candidato = pal
-                # aunque la condicion de arriba no cumpla, guardamos la palabra, en caso de no encontrar otra mejor
-                else:
-                    candidatoAux = pal
-                    frecAux = cantAps
-
     if palPosterior in dictFrecuencias.keys():
         for pal, cantAps in dictFrecuencias[palPosterior][0].items():
             if cantAps > mayFrec and pal != palAnterior and pal != palPosterior: 
-                # para evitar que una oracion termine con un -potencial- articulo (palabra de longitud 3 o menor)
                 longitudValida = (len(pal) > 3)
                 if (not esUltimaPal) or (esUltimaPal and longitudValida):
                     mayFrec = cantAps
                     candidato = pal
-                else:
-                    candidatoAux = pal
-                    frecAux = cantAps
-
-    if (candidato == ""):
-        candidato = candidatoAux
-        mayFrec = frecAux
     return candidato
 
 def pos_pal_faltante(listaPals):

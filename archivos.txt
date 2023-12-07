@@ -1,3 +1,2 @@
-flaca.txt
-mienfermedad.txt
-tequieroigual.txt
+elamordespuesdelamor.txt
+unvestidoyunamor.txt
