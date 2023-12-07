@@ -1,5 +1,6 @@
 from sys import argv
 from random import choice
+import time
 
 def abrir_archivo(nomArch, modoLectura):
     try:
@@ -10,6 +11,19 @@ def abrir_archivo(nomArch, modoLectura):
         exit(-1)
     return arch
 
+# dictFrecuencias: {str: (dictI, dictD)}
+# dictI: {str: int}
+# dictD: {str: int}
+
+# Diccionario en el cual las claves son palabras, y el valor asociado a cada una de las claves son
+# tuplas de la forma (dict, dict) donde el diccionario en la primer componente corresponde a un diccionario
+# donde las claves son palabras a la izquierda de la palabra original y sus valores asociados son numeros enteros 
+# correspondientes a la cantidad de veces que las palabras aparecen juntas (en ese orden) en el texto
+# el diccionario de la segunda componente se comporta de manera analoga pero con almacenando las palabras a la derecha
+# de la palabra original
+
+# ejemplos:
+
 def armar_dict_frecuencias(listaPals, ocurrencias):
     for i, pal in enumerate(listaPals):
         palIzq = listaPals[i-1] if i > 0 else ""
@@ -19,21 +33,41 @@ def armar_dict_frecuencias(listaPals, ocurrencias):
             ocurrencias[pal] = ({}, {})
 
         if palIzq != "":
+            # se agrega la palabra al diccionario de las palabras a la izquierda
             if palIzq not in ocurrencias[pal][0]:
                 ocurrencias[pal][0][palIzq] = 1
             else:
                 ocurrencias[pal][0][palIzq] += 1
         if palDer != "":
+            # se agrega la palabra al diccionario de las palabras a la derecha
             if palDer not in ocurrencias[pal][1]:
                 ocurrencias[pal][1][palDer] = 1
             else:
                 ocurrencias[pal][1][palDer] += 1
     return ocurrencias
-   
+ 
+# dictsBigramas: (bigramasI, bigramasD)
+# bigramasI: {(palIzq2, palIzq1): set(pal)}
+# palIzq2, palIzq1, pal: str
+# bigramasD: {(palDer1, palDer2): set(pal)}
+# palDer1, palDer2, pal: str
+
+# dictsBigramas es una tupla que contiene a los diccionarios bigramasI y bigramasD.
+# El diccionario bigramasI se trata de un diccionario cuya claves son tuplas de la forma
+# (palIzq2, palIzq1) donde palIzq2 es la string que se encuentra 2 palabras a la izquierda
+# de pal y palIzq1 la string que se encuentra exactamente a la izquierda de pal, siendo pal
+# un elemento del conjunto de valores asociados a cada clave.
+
+# la palabra usada como clave termina resultando la palabra "entre medio", donde el primer elemento son diccionarios
+# con las palabras a su izquierda junto con la cantidad de veces que aparecen juntas y el segundo elemento son
+# diccionarios con las palabras a su derecha junto con la cantidad de veces que aparecen juntas
+
+# en la parte de tests se pueden ver ejemplos del funcionamiento
+
 def armar_dicts_bigramas(listaPals, bigramasI, bigramasD):
     i=0
     while i < len(listaPals):
-        if (i > 2):
+        if (i > 1):
             grupoIzq = (listaPals[i-1],listaPals[i])    
             if grupoIzq not in bigramasI:
                 bigramasI[grupoIzq] = set()
@@ -55,13 +89,13 @@ def frecuencia_grupos(rutaEntrada):
     archivoEntradas.close()
     return (dictFrecuencias, dictsBigramas)
 
-def may_frecuencia_i(datoFrecuencias, palAnterior, palPosterior):
+def may_frecuencia_i(dictFrecuencias, palAnterior, palPosterior):
     esUltimaPal = (palPosterior == "")
     candidato, mayFrec = "", 0
     candidatoAux, frecAux = "", 0
     
-    if palAnterior in datoFrecuencias.keys():
-        for pal, cantAps in datoFrecuencias[palAnterior][1].items():
+    if palAnterior in dictFrecuencias.keys():
+        for pal, cantAps in dictFrecuencias[palAnterior][1].items():
             if cantAps > mayFrec and pal != palPosterior and pal != palAnterior:
                 # para evitar que una oracion termine con un -potencial- articulo (palabra de longitud 3 o menor)
                 longitudValida = (len(pal) > 3)
@@ -79,13 +113,13 @@ def may_frecuencia_i(datoFrecuencias, palAnterior, palPosterior):
 
 # decidi hacer funciones distintas para los diccionarios de palabras
 # a la izquierda (i)/ derecha(d) solo para mejorar la lejibilidad
-def may_frecuencia_d(datoFrecuencias, palAnterior, palPosterior):
+def may_frecuencia_d(dictFrecuencias, palAnterior, palPosterior):
     esUltimaPal = (palPosterior == "")
     candidato, mayFrec = "", 0
     candidatoAux, frecAux = "", 0
     
-    if palPosterior in datoFrecuencias.keys():
-        for pal, cantAps in datoFrecuencias[palPosterior][0].items():
+    if palPosterior in dictFrecuencias.keys():
+        for pal, cantAps in dictFrecuencias[palPosterior][0].items():
             if cantAps > mayFrec and pal != palAnterior and pal != palPosterior: 
                 # para evitar que una oracion termine con un -potencial- articulo (palabra de longitud 3 o menor)
                 longitudValida = (len(pal) > 3)
@@ -151,7 +185,7 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
             candidatoIzq = may_frecuencia_i(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
             candidatoDer = may_frecuencia_d(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
             
-            candidato = candidatoIzq[0] if candidatoIzq[1] >= candidatoDer[1] else candidatoDer[0]
+            candidato = candidatoIzq[0] if (candidatoIzq[1] >= candidatoDer[1]) else candidatoDer[0]
            
         # como ultimo recurso, escoger el candidato de manera aleatoria entre las palabras del 
         # texto de entrada. Se prefiere que no sea un articulo.
@@ -173,6 +207,7 @@ def main():
         print("Cantidad incorrecta de argumentos. Saliendo...")
         exit(-1)    
 
+    start = time.time()
     infoTexto = frecuencia_grupos(rutaEntrada)
     
     dictFrecuencias = infoTexto[0]
@@ -181,6 +216,7 @@ def main():
     bigramaIzq = dictsBigrama[1]
     
     obtener_candidatos(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases)
+    print(f"It took {time.time() - start}s")    
 
 if __name__ == "__main__":
     main()
