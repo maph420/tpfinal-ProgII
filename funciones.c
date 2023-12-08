@@ -58,7 +58,7 @@ char** obtener_textos(char* rutaArtista) {
 
 char* limpiar_texto(char* nomTexto) {
     char c, resultado[CANT_CARACTERES_MAX];
-    int i = 0, puntoEncontrado = 0, espacioEncontrado = 0, enterEncontrado = 0;
+    int i = 0, puntoEncontrado = 0, espacioEncontrado = 0, enterEncontrado = 0, esPrimCaracter=1;
 
     FILE* archivoEntrada;
     archivoEntrada = fopen(nomTexto, "r");
@@ -69,20 +69,15 @@ char* limpiar_texto(char* nomTexto) {
     }
     while ( (c = fgetc(archivoEntrada)) != EOF) {
 
-        if (c >= 'A' && c <= 'Z') {
+        if (isalpha(c) || isdigit(c)) {
             resultado[i++] = tolower(c);
             puntoEncontrado = 0;
             espacioEncontrado = 0;
             enterEncontrado = 0;
+            esPrimCaracter = 0;
         }
         
-        else if ((c >= 'a' && c <= 'z') || (c>= '0' && c<= '9')) {
-            resultado[i++] = c;
-            puntoEncontrado = 0;
-            espacioEncontrado = 0;
-            enterEncontrado = 0;
-        } 
-        else if (c == ' ' && !espacioEncontrado && !puntoEncontrado && !enterEncontrado) {
+        else if (c == ' ' && !espacioEncontrado && !puntoEncontrado && !enterEncontrado && !esPrimCaracter) {
             resultado[i++] = c;
             espacioEncontrado = 1;
             enterEncontrado = 0;
@@ -96,7 +91,7 @@ char* limpiar_texto(char* nomTexto) {
             enterEncontrado = 0;
         }
 
-        else if (c == '\n' && !puntoEncontrado && !enterEncontrado && !espacioEncontrado) {
+        else if (c == '\n' && !puntoEncontrado && !enterEncontrado && !espacioEncontrado && !esPrimCaracter) {
             resultado[i++] = ' ';
             enterEncontrado = 1;
             puntoEncontrado = 0;
@@ -105,7 +100,7 @@ char* limpiar_texto(char* nomTexto) {
     }
     // nos aseguramos de agregar terminador al final de la cadena
     if (i>1) {
-        resultado[i]='\0';
+        resultado[i-1]='\0';
     }
     
     // copiamos el resultado en un puntero a char, para retornarlo al scope del main
@@ -115,7 +110,6 @@ char* limpiar_texto(char* nomTexto) {
     fclose(archivoEntrada);
     return resultadoCopia;
 }
-
 int recorrer_y_limpiar(char** textos, char* rutaArtista, char* nomArchivoDestino) {
     char *textoLimpio;
     int i=0;

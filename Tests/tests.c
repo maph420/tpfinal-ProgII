@@ -63,6 +63,7 @@ void test_obtener_textos() {
 void test_limpiar_texto() {
     char* result1 = limpiar_texto("archivo_a_limpiar.txt");
     assert(result1 != NULL);
+    printf("result1: %s\n", result1);
     assert(strcmp(result1, "este texto va a ser limpiado menos mal") == 0);
     char* result2 = limpiar_texto("noexisto.txt");
     assert(result2 == NULL);
@@ -81,10 +82,12 @@ void test_recorrer_y_limpiar() {
 
     char *rutaArtista = malloc(sizeof(char) * 50);
     char *nomArchDestino = malloc(sizeof(char) * 50);
+
     strcpy(rutaArtista, "Textos/Cantante2");
     strcpy(nomArchDestino, "salida.txt");
 
     recorrer_y_limpiar(textos1, rutaArtista, nomArchDestino);
+
     FILE* archSalida = fopen("salida.txt", "r");
     char linea[LONGITUD_MAX_LINEA];
     char** contenidoLinea = malloc(sizeof(char*) * 30);
@@ -95,14 +98,12 @@ void test_recorrer_y_limpiar() {
         strcpy(contenidoLinea[i], linea);
         i++;
     }
-
     contenidoLinea[i] = NULL;
     assert(strcmp(contenidoLinea[0], "este es el primer texto\n") == 0);
     assert(strcmp(contenidoLinea[1], "el que le sigue al primero es el segundo\n") == 0);
     assert(strcmp(contenidoLinea[2], "este archivo de texto es el segundo\n") == 0);
     assert(strcmp(contenidoLinea[3], "por ultimo este es el tercero\n") == 0);
     assert(strcmp(contenidoLinea[4], "este es el ultimo texto\n") == 0);
-    assert(strcmp(contenidoLinea[5], "\n") == 0);
 
     printf("-------\n-Los test de recorrer_y_limpiar pasaron\n");
     liberar_textos(contenidoLinea);
