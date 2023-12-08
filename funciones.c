@@ -58,8 +58,12 @@ char** obtener_textos(char* rutaArtista) {
 
 char* limpiar_texto(char* nomTexto) {
     char c, resultado[CANT_CARACTERES_MAX];
-    int i = 0, puntoEncontrado = 0, espacioEncontrado = 0, enterEncontrado = 0, esPrimCaracter=1;
-
+    int i = 0, estado = 0;
+    /*
+    estado 0 -> el caracter anterior fue un punto/enter o no hay caracter anterior
+    estado 1 -> el caracter anterior fue alfanumerico/digito
+    estado 2 -> el caracter anterior fue un espacio
+    */
     FILE* archivoEntrada;
     archivoEntrada = fopen(nomTexto, "r");
 
@@ -67,38 +71,30 @@ char* limpiar_texto(char* nomTexto) {
         printf("Hubo un problema al abrir el archivo %s\n", nomTexto);
         return NULL;
     }
-    while ( (c = fgetc(archivoEntrada)) != EOF) {
-
+    while ((c = fgetc(archivoEntrada)) != EOF) {
         if (isalpha(c) || isdigit(c)) {
-            resultado[i++] = tolower(c);
-            puntoEncontrado = 0;
-            espacioEncontrado = 0;
-            enterEncontrado = 0;
-            esPrimCaracter = 0;
-        }
-        
-        else if (c == ' ' && !espacioEncontrado && !puntoEncontrado && !enterEncontrado && !esPrimCaracter) {
-            resultado[i++] = c;
-            espacioEncontrado = 1;
-            enterEncontrado = 0;
-            puntoEncontrado=0;
-        }
-
-        else if (c == '.') {
-            resultado[i++] = '\n';
-            puntoEncontrado = 1;
-            espacioEncontrado = 0;
-            enterEncontrado = 0;
-        }
-
-        else if (c == '\n' && !puntoEncontrado && !enterEncontrado && !espacioEncontrado && !esPrimCaracter) {
-            resultado[i++] = ' ';
-            enterEncontrado = 1;
-            puntoEncontrado = 0;
-            espacioEncontrado = 0;
+            resultado[i] = tolower(c);
+            estado = 1;
+            i++;
+        } else if (c == ' ') {
+            if (estado == 1) {
+                resultado[i] = c;
+                i++;
+            }
+            estado = 2;
+        } else if (c == '.') {
+            resultado[i] = '\n';
+            estado = 0;
+            i++;
+        } else if (c == '\n') {
+            if (estado == 1) {
+                resultado[i] = ' ';
+                i++;
+            }
+            estado = 0;
         }
     }
-    // nos aseguramos de agregar terminador al final de la cadena
+    // modificamos el ultimo caracter de la cadena (un enter) por un terminador
     if (i>1) {
         resultado[i-1]='\0';
     }
