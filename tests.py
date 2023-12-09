@@ -1,3 +1,23 @@
+import sys
+import os
+ 
+# getting the name of the directory
+# where the this file is present.
+current = os.path.dirname(os.path.realpath(__file__))
+ 
+# Getting the parent directory name
+# where the current directory is present.
+parent = os.path.dirname(current)
+ 
+# adding the parent directory to 
+# the sys.path.
+sys.path.append(parent)
+ 
+# now we can import the module in the parent
+# directory.
+import main
+ 
+
 from main import armar_dict_frecuencias, armar_dicts_bigramas, may_frecuencia, pos_pal_faltante, completar_frase, obtener_pal_anteriores, obtener_pal_posteriores
    
 def test_obtener_pal_anteriores():

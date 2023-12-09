@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
-#include "../funciones.h"
+#include "funciones.h"
 
 void liberar_textos(char** textos) {
     
@@ -35,22 +35,22 @@ void test_armar_cadena() {
 }
 void test_obtener_textos() {
     // Test case 1: Provide a valid directory
-    char** textos1 = obtener_textos("Textos/Andres_Calamaro");
+    char** textos1 = obtener_textos("Tests/Textos/Andres_Calamaro");
     assert(textos1 != NULL);
     assert(strcmp(textos1[0],"flaca.txt\n") == 0);
     assert(strcmp(textos1[1],"mienfermedad.txt\n") == 0);
     assert(strcmp(textos1[2],"tequieroigual.txt\n") == 0);
     
-    char** textos2 = obtener_textos("Textos#Andres_Calamaro.txt");
+    char** textos2 = obtener_textos("Tests/Textos#Andres_Calamaro.txt");
     assert(textos2 == NULL);
    
-    char** textos3 = obtener_textos("Textos/Gustavo_Cerati");
+    char** textos3 = obtener_textos("Tests/Textos/Gustavo_Cerati");
     assert(textos3 != NULL);
     assert(strcmp(textos3[0],"crimen.txt\n") == 0);
     assert(strcmp(textos3[1],"jugodeluna.txt\n") == 0);
     assert(strcmp(textos3[2],"karaoke.txt\n") == 0);
 
-    char** textos4 = obtener_textos("Textos/Cantante1");
+    char** textos4 = obtener_textos("Tests/Textos/Cantante1");
     assert(textos4 == NULL);
     
     liberar_textos(textos1);
@@ -61,11 +61,11 @@ void test_obtener_textos() {
     printf("-------\n-Los test de obtener_textos pasaron\n");
 }
 void test_limpiar_texto() {
-    char* result1 = limpiar_texto("archivo_a_limpiar.txt");
+    char* result1 = limpiar_texto("Tests/archivo_a_limpiar.txt");
     assert(result1 != NULL);
     printf("result1: %s\n", result1);
     assert(strcmp(result1, "este texto va a ser limpiado menos mal") == 0);
-    char* result2 = limpiar_texto("noexisto.txt");
+    char* result2 = limpiar_texto("Tests/noexisto.txt");
     assert(result2 == NULL);
     
     free(result1);
@@ -83,12 +83,12 @@ void test_recorrer_y_limpiar() {
     char *rutaArtista = malloc(sizeof(char) * 50);
     char *nomArchDestino = malloc(sizeof(char) * 50);
 
-    strcpy(rutaArtista, "Textos/Cantante2");
-    strcpy(nomArchDestino, "salida.txt");
+    strcpy(rutaArtista, "Tests/Textos/Cantante2");
+    strcpy(nomArchDestino, "Tests/salida.txt");
 
     recorrer_y_limpiar(textos1, rutaArtista, nomArchDestino);
 
-    FILE* archSalida = fopen("salida.txt", "r");
+    FILE* archSalida = fopen("Tests/salida.txt", "r");
     char linea[LONGITUD_MAX_LINEA];
     char** contenidoLinea = malloc(sizeof(char*) * 30);
     int i=0;
