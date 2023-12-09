@@ -116,6 +116,7 @@ def test_armar_dict_frecuencias():
                          'ilumina': ({'brilla': 1}, {'el': 1}), 
                          'día': ({'el': 1, 'día': 3, 'tras': 3}, {'día': 3, 'tras': 3}), 
                          'tras': ({'día': 3}, {'día': 3})}
+    print(armar_dict_frecuencias("hoy sale la luna o se apaga la luna".split(),{}))
     
 def test_armar_dicts_bigramas():    
     
@@ -202,17 +203,17 @@ def test_may_frecuencia():
     assert result == "sol"  
 
     # Caso 4: Encontrar candidato como ultima palabra
-    # frase: hoy sale el sol o se apaga el sol
+    # frase: hoy sale la luna o se apaga la luna
     dictFrecuencias = {'hoy': ({}, {'sale': 1}), 
-                       'sale': ({'hoy': 1}, {'el': 1}), 
-                       'el': ({'sale': 1, 'apaga': 1}, {'sol': 2}), 
-                       'sol': ({'el': 2}, {'o': 1}), 
-                       'o': ({'sol': 1}, {'se': 1}), 
+                       'sale': ({'hoy': 1}, {'la': 1}), 
+                       'la': ({'sale': 1, 'apaga': 1}, {'luna': 2}), 
+                       'luna': ({'la': 2}, {'o': 1}), 
+                       'o': ({'luna': 1}, {'se': 1}), 
                        'se': ({'o': 1}, {'apaga': 1}), 
-                       'apaga': ({'se': 1}, {'el': 1})}
-    palAnterior, palPosterior = "el", ""
+                       'apaga': ({'se': 1}, {'la': 1})}
+    palAnterior, palPosterior = "la", ""
     result = may_frecuencia(dictFrecuencias, palAnterior, palPosterior)
-    assert result == "sol"  
+    assert result == "luna"  
 
     # Caso 5: Encuentra dos posibles candidatos (misma frecuencia), por defecto se queda con el primero
     # Frase: el increible color el esperanzador color

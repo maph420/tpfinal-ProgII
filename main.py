@@ -1,6 +1,5 @@
 from sys import argv
 from random import choice
-import time
 
 def abrir_archivo(nomArch, modoLectura):
     try:
@@ -21,8 +20,6 @@ def abrir_archivo(nomArch, modoLectura):
 # correspondientes a la cantidad de veces que las palabras aparecen juntas (en ese orden) en el texto
 # el diccionario de la segunda componente se comporta de manera analoga pero con almacenando las palabras a la derecha
 # de la palabra original
-
-# ejemplos:
 
 def armar_dict_frecuencias(listaPals, ocurrencias):
     for i, pal in enumerate(listaPals):
@@ -97,7 +94,7 @@ def may_frecuencia(dictFrecuencias, palAnterior, palPosterior):
         for pal, cantAps in dictFrecuencias[palAnterior][1].items():
             if cantAps > mayFrec and pal != palPosterior and pal != palAnterior:
                 # para evitar que una oracion termine con un -potencial- articulo (palabra de longitud 3 o menor)
-                longitudValida = (len(pal) > 2)
+                longitudValida = (len(pal) > 3)
                 if (not esUltimaPal) or (esUltimaPal and longitudValida):
                     mayFrec = cantAps
                     candidato = pal
@@ -161,16 +158,16 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
         # buscar coincidencia por palabras a la izquierda
         if palabrasAnteriores in bigramaIzq and bigramaIzq[palabrasAnteriores] != set():
             candidato = bigramaIzq[palabrasAnteriores].pop()
-            
+         
         # buscar coincidencia por palabras a la derecha
         elif palabrasPosteriores in bigramaDer and bigramaDer[palabrasPosteriores] != set():
             candidato = bigramaDer[palabrasPosteriores].pop()
-        
+
         # en caso de no encontrar una coincidencia exacta a traves de bigramas, tratar de hallar
         # una palabra adecuada basandose en la frecuencia de apariciones
         else:
             candidato = may_frecuencia(datoFrecuencias, palabrasAnteriores[1], palabrasPosteriores[0])
-        
+            
         # como ultimo recurso, escoger el candidato de manera aleatoria entre las palabras del 
         # texto de entrada. Se prefiere que no sea un articulo.
         if candidato == "":
@@ -191,7 +188,6 @@ def main():
         print("Cantidad incorrecta de argumentos. Saliendo...")
         exit(-1)    
     
-    start = time.time()
     infoTexto = frecuencia_grupos(rutaEntrada)
     
     dictFrecuencias = infoTexto[0]
@@ -199,8 +195,7 @@ def main():
     bigramaDer = dictsBigrama[0]
     bigramaIzq = dictsBigrama[1]
     
-    obtener_candidatos(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases)
-    print(f"It took {time.time() - start}s")    
+    obtener_candidatos(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases)   
 
 if __name__ == "__main__":
     main()

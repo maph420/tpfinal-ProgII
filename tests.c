@@ -63,7 +63,6 @@ void test_obtener_textos() {
 void test_limpiar_texto() {
     char* result1 = limpiar_texto("Tests/archivo_a_limpiar.txt");
     assert(result1 != NULL);
-    printf("result1: %s\n", result1);
     assert(strcmp(result1, "este texto va a ser limpiado menos mal") == 0);
     char* result2 = limpiar_texto("Tests/noexisto.txt");
     assert(result2 == NULL);
