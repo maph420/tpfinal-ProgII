@@ -103,7 +103,7 @@ void test_recorrer_y_limpiar() {
     assert(strcmp(contenidoLinea[2], "este archivo de texto es el segundo\n") == 0);
     assert(strcmp(contenidoLinea[3], "por ultimo este es el tercero\n") == 0);
     assert(strcmp(contenidoLinea[4], "este es el ultimo texto\n") == 0);
-
+    
     printf("-------\n-Los test de recorrer_y_limpiar pasaron\n");
     liberar_textos(contenidoLinea);
     fclose(archSalida);

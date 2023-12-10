@@ -155,6 +155,7 @@ def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rut
 
         # buscar coincidencia por palabras a la izquierda
         if palabrasAnteriores in bigramaIzq and bigramaIzq[palabrasAnteriores] != set():
+            
             candidato = bigramaIzq[palabrasAnteriores].pop()
     
         # buscar coincidencia por palabras a la derecha

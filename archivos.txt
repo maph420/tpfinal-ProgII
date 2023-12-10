@@ -1,3 +1,2 @@
-flaca.txt
-mienfermedad.txt
-tequieroigual.txt
+oncemil.txt
+sinprincipionifinal.txt
