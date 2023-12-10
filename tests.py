@@ -116,7 +116,7 @@ def test_armar_dict_frecuencias():
                          'ilumina': ({'brilla': 1}, {'el': 1}), 
                          'día': ({'el': 1, 'día': 3, 'tras': 3}, {'día': 3, 'tras': 3}), 
                          'tras': ({'día': 3}, {'día': 3})}
-    print(armar_dict_frecuencias("hoy sale la luna o se apaga la luna".split(),{}))
+    #print(armar_dict_frecuencias("hoy sale la luna o se apaga la luna".split(),{}))
     
 def test_armar_dicts_bigramas():    
     
@@ -141,30 +141,32 @@ def test_armar_dicts_bigramas():
     # Caso 4: lista de >2 palabras, con palabras repetidas no contiguas
     listPals = "naranja color naranja".split()
     dictTest = armar_dicts_bigramas(listPals, {}, {})
-    assert dictTest[0] == {('color', 'naranja'): {'naranja'}}
-    assert dictTest[1] == {('naranja', 'color'): {'naranja'}}
+    print(f"dictTest: {dictTest}")
+    
+    assert dictTest[0] == {('naranja', 'color'): {'naranja'}}
+    assert dictTest[1] == {('color', 'naranja'): {'naranja'}}
 
     # Caso 5: lista de >2 palabras, con palabras repetidas contiguas
     listPals = "luna luna azul".split()
     dictTest = armar_dicts_bigramas(listPals, {}, {})
-    assert dictTest[0] == {('luna', 'azul'): {'luna'}}
-    assert dictTest[1] == {('luna', 'luna'): {'azul'}}
+    assert dictTest[0] == {('luna', 'luna'): {'azul'}}
+    assert dictTest[1] == {('luna', 'azul'): {'luna'}}
 
     # Caso 6: lista de >2 palabras generica 
     listPals = "el espadachin negro hizo su cometido de nuevo".split()
     dictTest = armar_dicts_bigramas(listPals, {}, {})
-    assert dictTest[0] == {('espadachin', 'negro'): {'el'}, 
-                         ('negro', 'hizo'): {'espadachin'}, 
-                         ('hizo', 'su'): {'negro'}, 
-                         ('su', 'cometido'): {'hizo'}, 
-                         ('cometido', 'de'): {'su'}, 
-                         ('de', 'nuevo'): {'cometido'}}
-    assert dictTest[1] == {('el', 'espadachin'): {'negro'}, 
+    assert dictTest[0] == {('el', 'espadachin'): {'negro'}, 
                             ('espadachin', 'negro'): {'hizo'}, 
                             ('negro', 'hizo'): {'su'}, 
                             ('hizo', 'su'): {'cometido'}, 
                             ('su', 'cometido'): {'de'}, 
                             ('cometido', 'de'): {'nuevo'}}
+    assert dictTest[1] == {('espadachin', 'negro'): {'el'}, 
+                         ('negro', 'hizo'): {'espadachin'}, 
+                         ('hizo', 'su'): {'negro'}, 
+                         ('su', 'cometido'): {'hizo'}, 
+                         ('cometido', 'de'): {'su'}, 
+                         ('de', 'nuevo'): {'cometido'}}
 
 def test_pos_pal_faltante():
     assert pos_pal_faltante(['el', 'dia', 'se', 'encuentra', '_']) == 4
