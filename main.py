@@ -1,6 +1,5 @@
 from sys import argv
 from random import choice
-
 def abrir_archivo(nomArch, modoLectura):
     try:
         arch = open(nomArch, modoLectura)
@@ -194,6 +193,7 @@ def main():
     bigramaDer = dictsBigrama[1]
    
     obtener_candidatos(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases) 
+    print(f"Salida generada en: {rutaSalida}")
 
 if __name__ == "__main__":
     main()

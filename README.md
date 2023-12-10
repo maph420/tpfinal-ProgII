@@ -7,9 +7,7 @@ Para correr el programa en conjunto, llamamos al ejecutable compilado en C:
 
 Para correr los tests en C:
 
-> cd Tests
-
-> gcc ../funciones.c tests.c -Wall -gstabs -o tests
+> gcc funciones.c tests.c -Wall -gstabs -o tests
 
 > ./tests
 
@@ -19,12 +17,8 @@ En caso de no tener pytest, instalarlo:
 > pip install pytest
 
 Una vez teniendo pytest:
-> python3 -m pytest Tests/tests.py
+> python3 -m pytest tests.py
 
 TODO:
 
-.Arreglar test en C (test_recorrer_y_limpiar)
-
-.Informe con explicacion
-
-.Pensar mejor solucion a los casos especificos de python
+.Pensar mejor solucion a los casos especificos de python (a y u d a .)
