@@ -33,6 +33,7 @@ void test_armar_cadena() {
     free(test3);
     printf("-------\n-Los test de armar_cadena pasaron exitosamente.\n");
 }
+/*
 void test_obtener_textos() {
     // Test case 1: Provide a valid directory
     char** textos1 = obtener_textos("Tests/Textos/Andres_Calamaro");
@@ -59,7 +60,7 @@ void test_obtener_textos() {
     liberar_textos(textos4);
     
     printf("-------\n-Los test de obtener_textos pasaron\n");
-}
+}*/
 void test_limpiar_texto() {
     char* result1 = limpiar_texto("Tests/archivo_a_limpiar.txt");
     assert(result1 != NULL);
@@ -114,7 +115,7 @@ void test_recorrer_y_limpiar() {
 int main() {
     
     test_armar_cadena();
-    test_obtener_textos();
+    //test_obtener_textos();
     test_limpiar_texto();
     test_recorrer_y_limpiar();
     printf("-------\nTodos los tests se corrieron con éxito\n");

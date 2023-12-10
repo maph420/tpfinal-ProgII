@@ -4,7 +4,8 @@
 int main(int argc, char** argv) {
 
     int verif, llamadaPython;
-    char* rutaArtista, **textos, *nomArchivoDestino;
+    char* rutaArtista, *nomArchivoDestino;
+    ListaTextos listaTextos;
     
     if (argc != 2) {
         printf("Numero de argumentos incorrecta.\nUso: ./main nombre_de_artista\n");
@@ -12,22 +13,28 @@ int main(int argc, char** argv) {
     }
     char* cadenasRutaArtista[] = {RUTA_A_LEER, argv[1]};
     rutaArtista = armar_cadena(cadenasRutaArtista, 2);
+    
+    listaTextos = obtener_textos(rutaArtista);
 
-    textos = obtener_textos(rutaArtista);
-    if (textos == NULL) {
+    if (listaTextos.textos == NULL) {
         free(rutaArtista);
+        free(listaTextos.textos);
         return -1;
+    }
+
+    for (int i=0; i < listaTextos.longitud; i++) {
+        printf("-> %s\n", listaTextos.textos[i]);
     }
 
     char* cadenasArchDest[] = {RUTA_A_ESCRIBIR, argv[1], ".txt"};
     nomArchivoDestino = armar_cadena(cadenasArchDest, 3);
 
-    verif = recorrer_y_limpiar(textos, rutaArtista, nomArchivoDestino);
+    verif = recorrer_y_limpiar(listaTextos, rutaArtista, nomArchivoDestino);
+
     if (verif != 0) {
         return -1;
     }
-
-    free(textos);
+    
     free(rutaArtista);
     free(nomArchivoDestino);
 

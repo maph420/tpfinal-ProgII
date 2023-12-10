@@ -14,10 +14,15 @@
 #define LONGITUD_MAX_LINEA 255
 #define LONGITUD_MAX_COMANDO 100
 
+typedef struct {
+    char** textos;
+    int longitud;
+} ListaTextos;
+
 char* armar_cadena(char* palabras[], int cantPalabras);
-char** obtener_textos(char* rutaArtista);
+ListaTextos obtener_textos(char* rutaArtista);
 char* limpiar_texto(char* nomTexto);
-int recorrer_y_limpiar(char** textos, char* rutaArtista, char* nomArchivoDestino);
+int recorrer_y_limpiar(ListaTextos listaTextos, char* rutaArtista, char* nomArchivoDestino);
 int llamar_python(char* args);
 
 #endif

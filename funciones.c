@@ -10,51 +10,48 @@ char* armar_cadena(char* palabras[], int cantPalabras) {
     return comando;
 }
 
-char** obtener_textos(char* rutaArtista) {
+ListaTextos obtener_textos(char* rutaArtista) {
     char linea[LONGITUD_MAX_LINEA];
-    char** textos = malloc(sizeof(char *)*30);
-    int i=0;
+    ListaTextos resultado = {NULL, 0};
+    
     FILE* archivoNombres;
-
     char* cadenasComando[] = {"ls ", rutaArtista, "> archivos.txt"};
     char* comandoVolcarNombres = armar_cadena(cadenasComando, 3);
 
-    // system retorna algo distinto de 0 si falla el comando
     if (system(comandoVolcarNombres) != 0) {
-        printf("Error: Directorio no encontrado. Revisar argumento pasado. \n");
-        free(textos);
+        printf("Error: Directorio no encontrado. Revisar argumento pasado.\n");
         free(comandoVolcarNombres);
-        return NULL;
+        return resultado;
     }
 
     archivoNombres = fopen(RUTA_ARCHIVOS, "r");
-    
+
     if (archivoNombres == NULL) {
-        free(textos);
-        free(comandoVolcarNombres);
-        fclose(archivoNombres);
         printf("Error: no se pudo abrir el archivo de nombres. Revisar argumento pasado.\n");
-        return NULL;
+        free(comandoVolcarNombres);
+        return resultado;
     }
-    
-    while( fgets(linea, LONGITUD_MAX_LINEA, archivoNombres)) {
-        textos[i] = malloc(sizeof(char)*50);
-        strcpy(textos[i], linea);
+
+    size_t i = 0;
+    resultado.textos = malloc(sizeof(char*) * 30);
+    while (fgets(linea, LONGITUD_MAX_LINEA, archivoNombres)) {
+        resultado.textos[i] = malloc(sizeof(char)*(strlen(linea)+1));
+        strcpy(resultado.textos[i], linea);
         i++;
     }
-    if (i==0) {
-        printf("Error: archivos.txt esta vacio\n");
-        free(textos);
+
+    if (i == 0) {
+        printf("Error: archivos.txt está vacío\n");
         free(comandoVolcarNombres);
         fclose(archivoNombres);
-        return NULL;
+        return resultado;
     }
-    // aseguramos de colocar una marca que indique el fin de la lista
-    textos[i] = NULL;
+
+    resultado.longitud = i;
     free(comandoVolcarNombres);
     fclose(archivoNombres);
-    return textos;
-}   
+    return resultado;
+}
 
 char* limpiar_texto(char* nomTexto) {
     char c, resultado[CANT_CARACTERES_MAX];
@@ -106,33 +103,36 @@ char* limpiar_texto(char* nomTexto) {
     fclose(archivoEntrada);
     return resultadoCopia;
 }
-int recorrer_y_limpiar(char** textos, char* rutaArtista, char* nomArchivoDestino) {
+int recorrer_y_limpiar(ListaTextos listaTextos, char* rutaArtista, char* nomArchivoDestino) {
     char *textoLimpio;
-    int i=0;
     FILE* archivoDestino = fopen(nomArchivoDestino, "w");
     
     if (archivoDestino == NULL) {
         printf("Error: No se pudo abrir el archivo de destino\n");
         return -1;
     }
-    while (textos[i] != NULL) {
-        char* cadenasRutaTexto[] = {rutaArtista, "/", textos[i]};
+
+    for (int i=0; i < listaTextos.longitud; i++) {
+        char* cadenasRutaTexto[] = {rutaArtista, "/", listaTextos.textos[i]};
         char* rutaTexto = armar_cadena(cadenasRutaTexto, 3);
         // reemplazamos el "enter" al final de cada oracion por un terminador
         rutaTexto[strlen(rutaTexto)-1] = '\0';
 
         textoLimpio = limpiar_texto(rutaTexto);
+
         if (textoLimpio == NULL) {
             return -2;
         }
+
         fputs(textoLimpio, archivoDestino);
         fputc('\n', archivoDestino);
 
         free(rutaTexto);
         free(textoLimpio);
-        free(textos[i]);
-        i++;
+        free(listaTextos.textos[i]);
+        listaTextos.textos[i] = NULL;
     }
+    free(listaTextos.textos);
     fclose(archivoDestino);
     return 0;
 }
