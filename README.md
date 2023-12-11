@@ -21,4 +21,4 @@ Una vez teniendo pytest:
 
 TODO:
 
-.Pensar mejor solucion a los casos especificos de python (a y u d a .)
+revisar y agregar mas comentarios al python/C

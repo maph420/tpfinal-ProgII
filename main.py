@@ -1,5 +1,7 @@
 from sys import argv
 from random import choice
+
+# abrir_archivo: str, str -> file
 def abrir_archivo(nomArch, modoLectura):
     try:
         arch = open(nomArch, modoLectura)
@@ -21,6 +23,7 @@ def abrir_archivo(nomArch, modoLectura):
 
 # ejemplos:
 
+# armar_dict_frecuencias: list(str), { str: ({str: int}, {str: int}) } -> { str: ({str: int}, {str: int}) }
 def armar_dict_frecuencias(listaPals, ocurrencias):
     for i, pal in enumerate(listaPals):
         palIzq = listaPals[i-1] if i > 0 else ""
@@ -61,6 +64,7 @@ def armar_dict_frecuencias(listaPals, ocurrencias):
 
 # en la parte de tests se pueden ver ejemplos del funcionamiento
 
+# armar_dicts_bigramas: list(str), {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)} -> ( {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)} )
 def armar_dicts_bigramas(listaPals, bigramasI, bigramasD):
     i=0
     while i < len(listaPals):
@@ -79,6 +83,7 @@ def armar_dicts_bigramas(listaPals, bigramasI, bigramasD):
         i+=1
     return (bigramasI, bigramasD)
 
+# frecuencia_grupos: str -> ( { str: ({str: int}, {str: int}) }, ( {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)} ) )
 def frecuencia_grupos(rutaEntrada):
     archivoEntradas = abrir_archivo(rutaEntrada, 'r')
     frecuenciaGrupos, bigramasI, bigramasD = {}, {}, {}
@@ -88,6 +93,7 @@ def frecuencia_grupos(rutaEntrada):
     archivoEntradas.close()
     return (dictFrecuencias, dictsBigramas)
 
+# may_frecuencia: { str: ({str: int}, {str: int}) }, str, str -> str
 def may_frecuencia(dictFrecuencias, palAnterior, palPosterior):
     esUltimaPal = (palPosterior == "")
     candidato, mayFrec = "", 0
@@ -109,6 +115,7 @@ def may_frecuencia(dictFrecuencias, palAnterior, palPosterior):
                     candidato = pal
     return candidato
 
+# pos_pal_faltante: list(str) -> int
 def pos_pal_faltante(listaPals):
     i, encontrado, pospal = 0, 0, 0
     while (i < len(listaPals) and (not encontrado)):
@@ -119,13 +126,15 @@ def pos_pal_faltante(listaPals):
             i += 1
     return pospal
 
+# completar_frase: str, str, file -> None
 def completar_frase(lineaFrase, palabraCandidata, archivo):
     for palabra in lineaFrase:
         if palabra == "_":
-            archivo.write(palabraCandidata.upper())
+            archivo.write(palabraCandidata)
         else:
             archivo.write(palabra)
 
+# obtener_pal_anteriores: list(str), int -> ( str, str )
 def obtener_pal_anteriores(listaPalabras, posPal):
     palabrasAnteriores = ("","")
     if (posPal > 1):
@@ -134,6 +143,7 @@ def obtener_pal_anteriores(listaPalabras, posPal):
         palabrasAnteriores = ("", listaPalabras[posPal-1])
     return palabrasAnteriores
 
+# obtener_pal_posteriores: list(str), int -> ( str, str )
 def obtener_pal_posteriores(listaPalabras, posPal):
     palabrasPosteriores = ("","")
     if (posPal < (len(listaPalabras)-2)):
@@ -142,9 +152,11 @@ def obtener_pal_posteriores(listaPalabras, posPal):
         palabrasPosteriores = (listaPalabras[posPal+1],"")
     return palabrasPosteriores
     
-def obtener_candidatos(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rutaFrases):
+# completar_frases: { str: ({str: int}, {str: int}) }, {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)}, str, str -> None
+def completar_frases(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rutaFrases):
     archivoSalida = abrir_archivo(rutaArtista, 'w')
     archivoFrases = abrir_archivo(rutaFrases, 'r')
+    
     for lineaFrase in archivoFrases:
         listaPalabras = lineaFrase.split()
         posPalabraFaltante = pos_pal_faltante(listaPalabras)
@@ -193,7 +205,7 @@ def main():
     bigramaIzq = dictsBigrama[0]
     bigramaDer = dictsBigrama[1]
    
-    obtener_candidatos(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases) 
+    completar_frases(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases) 
     print(f"----------\nSalida generada en: {rutaSalida}\n----------")
 
 if __name__ == "__main__":
