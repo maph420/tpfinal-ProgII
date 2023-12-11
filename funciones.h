@@ -13,6 +13,7 @@
 #define CANT_CARACTERES_MAX 2000
 #define LONGITUD_MAX_LINEA 255
 #define LONGITUD_MAX_COMANDO 100
+#define LONGITUD_NOM_ARCHIVO_MAX 50
 
 typedef struct {
     char** textos;

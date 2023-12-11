@@ -1,7 +1,7 @@
 #include "funciones.h"
 
 char* armar_cadena(char* palabras[], int cantPalabras) {
-    char* comando = malloc(sizeof(char)*100);
+    char* comando = malloc(sizeof(char)*LONGITUD_MAX_COMANDO);
     // inicializar la cadena comando
     comando[0] = '\0';
     for (int i=0; i<cantPalabras; i++) {
@@ -11,8 +11,11 @@ char* armar_cadena(char* palabras[], int cantPalabras) {
 }
 
 ListaTextos obtener_textos(char* rutaArtista) {
+    int i=0;
     char linea[LONGITUD_MAX_LINEA];
-    ListaTextos resultado = {NULL, 0};
+    ListaTextos resultado;
+    resultado.textos = NULL;
+    resultado.longitud = 0;
     
     FILE* archivoNombres;
     char* cadenasComando[] = {"ls ", rutaArtista, "> archivos.txt"};
@@ -29,10 +32,10 @@ ListaTextos obtener_textos(char* rutaArtista) {
     if (archivoNombres == NULL) {
         printf("Error: no se pudo abrir el archivo de nombres. Revisar argumento pasado.\n");
         free(comandoVolcarNombres);
+        fclose(archivoNombres);
         return resultado;
     }
 
-    size_t i = 0;
     resultado.textos = malloc(sizeof(char*) * 30);
     while (fgets(linea, LONGITUD_MAX_LINEA, archivoNombres)) {
         resultado.textos[i] = malloc(sizeof(char)*(strlen(linea)+1));
@@ -44,6 +47,9 @@ ListaTextos obtener_textos(char* rutaArtista) {
         printf("Error: archivos.txt está vacío\n");
         free(comandoVolcarNombres);
         fclose(archivoNombres);
+        free(resultado.textos);
+        resultado.textos = NULL;
+        resultado.longitud = 0;
         return resultado;
     }
 

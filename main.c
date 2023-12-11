@@ -22,10 +22,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    for (int i=0; i < listaTextos.longitud; i++) {
-        printf("-> %s\n", listaTextos.textos[i]);
-    }
-
     char* cadenasArchDest[] = {RUTA_A_ESCRIBIR, argv[1], ".txt"};
     nomArchivoDestino = armar_cadena(cadenasArchDest, 3);
 
@@ -34,7 +30,7 @@ int main(int argc, char** argv) {
     if (verif != 0) {
         return -1;
     }
-    
+
     free(rutaArtista);
     free(nomArchivoDestino);
 
