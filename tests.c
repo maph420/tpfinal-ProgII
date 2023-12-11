@@ -51,7 +51,7 @@ void test_obtener_textos() {
     assert(strcmp(listaTextos3.textos[1],"jugodeluna.txt\n") == 0);
     assert(strcmp(listaTextos3.textos[2],"karaoke.txt\n") == 0);
 
-    ListaTextos listaTextos4 = obtener_textos("Tests/Textos/Cantante1");
+    ListaTextos listaTextos4 = obtener_textos("Tests/Textos/Cantante_Sin_Canciones");
     assert(listaTextos4.textos == NULL);
     
     // de listaTextos2 y listaTextos4 la memoria ya es liberada dentro de la funcion obtener_textos
@@ -63,7 +63,7 @@ void test_obtener_textos() {
 void test_limpiar_texto() {
     char* result1 = limpiar_texto("Tests/archivo_a_limpiar.txt");
     assert(result1 != NULL);
-    assert(strcmp(result1, "este texto va a ser limpiado menos mal") == 0);
+    assert(strcmp(result1, "este texto va a ser limpiado es decir se eliminara toda puntuacion espacios y saltos de linea") == 0);
     char* result2 = limpiar_texto("Tests/noexisto.txt");
     assert(result2 == NULL);
     
@@ -83,22 +83,22 @@ void test_recorrer_y_limpiar() {
     listaTextosTest.longitud = 3;
 
     ListaTextos contenidoLinea;
-    contenidoLinea.textos = malloc(sizeof(char*) * 5);
-    contenidoLinea.longitud = 5;
+    contenidoLinea.textos = malloc(sizeof(char*) * 9);
+    contenidoLinea.longitud = 9;
 
     listaTextosTest.textos[0] = malloc(sizeof(char)*LONGITUD_MAX_LINEA);
-    strcpy(listaTextosTest.textos[0], "texto1.txt\n");
+    strcpy(listaTextosTest.textos[0], "Dos_Mundos.txt\n");
 
     listaTextosTest.textos[1] = malloc(sizeof(char)*LONGITUD_MAX_LINEA);
-    strcpy(listaTextosTest.textos[1], "texto2.txt\n");
+    strcpy(listaTextosTest.textos[1], "El_libro_de_la_selva.txt\n");
 
     listaTextosTest.textos[2] = malloc(sizeof(char)*LONGITUD_MAX_LINEA);
-    strcpy(listaTextosTest.textos[2], "texto3.txt\n");
+    strcpy(listaTextosTest.textos[2], "La_gallina_turuleca.txt\n");
 
     char *rutaArtista = malloc(sizeof(char) * LONGITUD_NOM_ARCHIVO_MAX);
     char *nomArchDestino = malloc(sizeof(char) * LONGITUD_NOM_ARCHIVO_MAX);
 
-    strcpy(rutaArtista, "Tests/Textos/Cantante2");
+    strcpy(rutaArtista, "Tests/Textos/Canciones_para_ninos");
     strcpy(nomArchDestino, "Tests/salida.txt");
 
     // la memoria empleada en listaTextosTest es liberada en la misma funcion
@@ -107,16 +107,20 @@ void test_recorrer_y_limpiar() {
     archSalida = fopen("Tests/salida.txt", "r");
  
     while( fgets(linea, LONGITUD_MAX_LINEA, archSalida)) {
-        contenidoLinea.textos[i] = malloc(sizeof(char) * 50);
+        contenidoLinea.textos[i] = malloc(sizeof(char) * LONGITUD_MAX_LINEA);
         strcpy(contenidoLinea.textos[i], linea);
         i++;
     }
-    assert(strcmp(contenidoLinea.textos[0], "este es el primer texto\n") == 0);
-    assert(strcmp(contenidoLinea.textos[1], "el que le sigue al primero es el segundo\n") == 0);
-    assert(strcmp(contenidoLinea.textos[2], "este archivo de texto es el segundo\n") == 0);
-    assert(strcmp(contenidoLinea.textos[3], "por ultimo este es el tercero\n") == 0);
-    assert(strcmp(contenidoLinea.textos[4], "este es el ultimo texto\n") == 0);
-    
+    assert(strcmp(contenidoLinea.textos[0], "pon tu fe en lo que tu mas creas\n") == 0);
+    assert(strcmp(contenidoLinea.textos[1], "un ser dos mundos son\n") == 0);
+    assert(strcmp(contenidoLinea.textos[2], "te guiara tu corazon y decidira por ti\n") == 0);
+    assert(strcmp(contenidoLinea.textos[3], "del primer lenguetazo\n") == 0);
+    assert(strcmp(contenidoLinea.textos[4], "lo mas vital en esta vida lo tendras\n") == 0);
+    assert(strcmp(contenidoLinea.textos[5], "te llegara\n") == 0);
+    assert(strcmp(contenidoLinea.textos[6], "yo conozco una vecina que ha comprado una gallina\n") == 0);
+    assert(strcmp(contenidoLinea.textos[7], "me parece una sardina enlatada\n") == 0);
+    assert(strcmp(contenidoLinea.textos[8], "tiene las patas de alambre porque pasa mucho hambre y la pobre esta todita desplumada\n") == 0);
+
     printf("-------\n-Los test de recorrer_y_limpiar pasaron\n");
 
     fclose(archSalida);

@@ -194,7 +194,7 @@ def main():
     bigramaDer = dictsBigrama[1]
    
     obtener_candidatos(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases) 
-    print(f"Salida generada en: {rutaSalida}")
+    print(f"----------\nSalida generada en: {rutaSalida}\n----------")
 
 if __name__ == "__main__":
     main()
