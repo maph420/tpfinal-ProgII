@@ -2,6 +2,8 @@ from sys import argv
 from random import choice
 
 # abrir_archivo: str, str -> file
+# Simplemente realiza operaciones con archivos, pero con chequeo de errores.
+
 def abrir_archivo(nomArch, modoLectura):
     try:
         arch = open(nomArch, modoLectura)
@@ -14,16 +16,9 @@ def abrir_archivo(nomArch, modoLectura):
 # dictI: {str: int}
 # dictD: {str: int}
 
-# Diccionario en el cual las claves son palabras, y el valor asociado a cada una de las claves son
-# tuplas de la forma (dict, dict) donde el diccionario en la primer componente corresponde a un diccionario
-# donde las claves son palabras a la izquierda de la palabra original y sus valores asociados son numeros enteros 
-# correspondientes a la cantidad de veces que las palabras aparecen juntas (en ese orden) en el texto
-# el diccionario de la segunda componente se comporta de manera analoga pero con almacenando las palabras a la derecha
-# de la palabra original
-
-# ejemplos:
-
 # armar_dict_frecuencias: list(str), { str: ({str: int}, {str: int}) } -> { str: ({str: int}, {str: int}) }
+# Construye el diccionario de frecuencias, dado la lista de palabras del texto a analizar.
+
 def armar_dict_frecuencias(listaPals, ocurrencias):
     for i, pal in enumerate(listaPals):
         palIzq = listaPals[i-1] if i > 0 else ""
@@ -52,19 +47,10 @@ def armar_dict_frecuencias(listaPals, ocurrencias):
 # bigramasD: {(palDer1, palDer2): set(pal)}
 # palDer1, palDer2, pal: str
 
-# dictsBigramas es una tupla que contiene a los diccionarios bigramasI y bigramasD.
-# El diccionario bigramasI se trata de un diccionario cuya claves son tuplas de la forma
-# (palIzq2, palIzq1) donde palIzq2 es la string que se encuentra 2 palabras a la izquierda
-# de pal y palIzq1 la string que se encuentra exactamente a la izquierda de pal, siendo pal
-# un elemento del conjunto de valores asociados a cada clave.
-
-# la palabra usada como clave termina resultando la palabra "entre medio", donde el primer elemento son diccionarios
-# con las palabras a su izquierda junto con la cantidad de veces que aparecen juntas y el segundo elemento son
-# diccionarios con las palabras a su derecha junto con la cantidad de veces que aparecen juntas
-
-# en la parte de tests se pueden ver ejemplos del funcionamiento
-
 # armar_dicts_bigramas: list(str), {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)} -> ( {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)} )
+# Arma los diccionarios de bigramas. Retorna una tupla con el diccionario de bigramas por izquierda y el diccionario
+# con bigramas por derecha, en ese orden.
+
 def armar_dicts_bigramas(listaPals, bigramasI, bigramasD):
     i=0
     while i < len(listaPals):
@@ -84,6 +70,8 @@ def armar_dicts_bigramas(listaPals, bigramasI, bigramasD):
     return (bigramasI, bigramasD)
 
 # frecuencia_grupos: str -> ( { str: ({str: int}, {str: int}) }, ( {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)} ) )
+# Se encarga de leer el archivo de entrada y crea las dos estructuras que almacenan la informacion, en forma de tupla.
+
 def frecuencia_grupos(rutaEntrada):
     archivoEntradas = abrir_archivo(rutaEntrada, 'r')
     frecuenciaGrupos, bigramasI, bigramasD = {}, {}, {}
@@ -94,6 +82,10 @@ def frecuencia_grupos(rutaEntrada):
     return (dictFrecuencias, dictsBigramas)
 
 # may_frecuencia: { str: ({str: int}, {str: int}) }, str, str -> str
+# Dado el diccionario de frecuencias, la palabra anterior y posterior a la palabra buscada,
+# retorna la palabra mas adecuada para completar la palabra buscada. Primero se basa en las frecuencias por izquierda.
+# Si no encuentra una palabra acorde con frecuencia mayor a 1, se fija por derecha.
+
 def may_frecuencia(dictFrecuencias, palAnterior, palPosterior):
     esUltimaPal = (palPosterior == "")
     candidato, mayFrec = "", 0
@@ -106,6 +98,8 @@ def may_frecuencia(dictFrecuencias, palAnterior, palPosterior):
                 if (not esUltimaPal) or (esUltimaPal and longitudValida):
                     mayFrec = cantAps
                     candidato = pal
+    if mayFrec > 1:
+        return candidato
     if palPosterior in dictFrecuencias.keys():
         for pal, cantAps in dictFrecuencias[palPosterior][0].items():
             if cantAps > mayFrec and pal != palAnterior and pal != palPosterior: 
@@ -116,6 +110,9 @@ def may_frecuencia(dictFrecuencias, palAnterior, palPosterior):
     return candidato
 
 # pos_pal_faltante: list(str) -> int
+# Dada una lista de palabras, retorna el indice en el cual aparece
+# el caracter '_' en la cadena.
+
 def pos_pal_faltante(listaPals):
     i, encontrado, pospal = 0, 0, 0
     while (i < len(listaPals) and (not encontrado)):
@@ -127,6 +124,9 @@ def pos_pal_faltante(listaPals):
     return pospal
 
 # completar_frase: str, str, file -> None
+# Escribe en el archivo los contenidos de lineaFrase, intercambiando los caracteres '_'
+# por palabraCandidata. Se asume que solo hay un '_' por lineaFrase.
+
 def completar_frase(lineaFrase, palabraCandidata, archivo):
     for palabra in lineaFrase:
         if palabra == "_":
@@ -135,6 +135,8 @@ def completar_frase(lineaFrase, palabraCandidata, archivo):
             archivo.write(palabra)
 
 # obtener_pal_anteriores: list(str), int -> ( str, str )
+# Retorna las dos palabras anteriores a la palabra cuyo indice se especifica como argumento.
+
 def obtener_pal_anteriores(listaPalabras, posPal):
     palabrasAnteriores = ("","")
     if (posPal > 1):
@@ -144,6 +146,8 @@ def obtener_pal_anteriores(listaPalabras, posPal):
     return palabrasAnteriores
 
 # obtener_pal_posteriores: list(str), int -> ( str, str )
+# Analogo a la funcion anterior.
+
 def obtener_pal_posteriores(listaPalabras, posPal):
     palabrasPosteriores = ("","")
     if (posPal < (len(listaPalabras)-2)):
@@ -152,8 +156,11 @@ def obtener_pal_posteriores(listaPalabras, posPal):
         palabrasPosteriores = (listaPalabras[posPal+1],"")
     return palabrasPosteriores
     
-# completar_frases: { str: ({str: int}, {str: int}) }, {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)}, str, str -> None
-def completar_frases(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rutaFrases):
+# buscar_y_completar: { str: ({str: int}, {str: int}) }, {(palIzq2, palIzq1): set(pal)}, {(palDer1, palDer2): set(pal)}, str, str -> None
+# Dadas las estructuras de informacion del texto y las rutas a escribir, busca un candidato para completar
+# la frase y la completa.
+
+def buscar_y_completar(datoFrecuencias, bigramaIzq, bigramaDer, rutaArtista, rutaFrases):
     archivoSalida = abrir_archivo(rutaArtista, 'w')
     archivoFrases = abrir_archivo(rutaFrases, 'r')
     
@@ -205,7 +212,7 @@ def main():
     bigramaIzq = dictsBigrama[0]
     bigramaDer = dictsBigrama[1]
    
-    completar_frases(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases) 
+    buscar_y_completar(dictFrecuencias, bigramaIzq, bigramaDer, rutaSalida, rutaFrases) 
     print(f"----------\nSalida generada en: {rutaSalida}\n----------")
 
 if __name__ == "__main__":

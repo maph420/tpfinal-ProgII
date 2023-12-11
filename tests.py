@@ -1,23 +1,3 @@
-import sys
-import os
- 
-# getting the name of the directory
-# where the this file is present.
-current = os.path.dirname(os.path.realpath(__file__))
- 
-# Getting the parent directory name
-# where the current directory is present.
-parent = os.path.dirname(current)
- 
-# adding the parent directory to 
-# the sys.path.
-sys.path.append(parent)
- 
-# now we can import the module in the parent
-# directory.
-import main
- 
-
 from main import armar_dict_frecuencias, armar_dicts_bigramas, may_frecuencia, pos_pal_faltante, completar_frase, obtener_pal_anteriores, obtener_pal_posteriores
    
 def test_obtener_pal_anteriores():
@@ -116,7 +96,6 @@ def test_armar_dict_frecuencias():
                          'ilumina': ({'brilla': 1}, {'el': 1}), 
                          'día': ({'el': 1, 'día': 3, 'tras': 3}, {'día': 3, 'tras': 3}), 
                          'tras': ({'día': 3}, {'día': 3})}
-    #print(armar_dict_frecuencias("hoy sale la luna o se apaga la luna".split(),{}))
     
 def test_armar_dicts_bigramas():    
     
@@ -141,8 +120,7 @@ def test_armar_dicts_bigramas():
     # Caso 4: lista de >2 palabras, con palabras repetidas no contiguas
     listPals = "naranja color naranja".split()
     dictTest = armar_dicts_bigramas(listPals, {}, {})
-    print(f"dictTest: {dictTest}")
-    
+
     assert dictTest[0] == {('naranja', 'color'): {'naranja'}}
     assert dictTest[1] == {('color', 'naranja'): {'naranja'}}
 

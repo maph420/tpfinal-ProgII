@@ -1,4 +1,3 @@
-//librerias
 #include "funciones.h"
 
 int main(int argc, char** argv) {
@@ -27,7 +26,7 @@ int main(int argc, char** argv) {
     nomArchivoDestino = armar_cadena(cadenasArchDest, 3);
 
     verif = recorrer_y_limpiar(listaTextos, rutaArtista, nomArchivoDestino);
-
+    
     if (verif != 0) {
         return -1;
     }

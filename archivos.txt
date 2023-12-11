@@ -1,0 +1,3 @@
+crimen.txt
+jugodeluna.txt
+karaoke.txt

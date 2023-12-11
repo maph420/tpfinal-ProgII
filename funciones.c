@@ -1,16 +1,18 @@
 #include "funciones.h"
 
 char* armar_cadena(char* palabras[], int cantPalabras) {
-    char* comando = malloc(sizeof(char)*LONGITUD_MAX_COMANDO);
-    // inicializar la cadena comando
-    comando[0] = '\0';
+    char* cadena = malloc(sizeof(char) * LONGITUD_MAX_COMANDO);
+    // inicializamos la cadena, ya que strcat no puede aplicarse sobre un array de caracteres sin inicializar
+    cadena[0] = '\0';
+
     for (int i=0; i<cantPalabras; i++) {
-        strcat(comando, palabras[i]);
+        strcat(cadena, palabras[i]);
     }
-    return comando;
+    return cadena;
 }
 
 ListaTextos obtener_textos(char* rutaArtista) {
+
     int i=0;
     char linea[LONGITUD_MAX_LINEA];
     ListaTextos resultado;
@@ -36,7 +38,9 @@ ListaTextos obtener_textos(char* rutaArtista) {
         return resultado;
     }
 
+    // reservamos memoria una vez chequeados algunos casos base
     resultado.textos = malloc(sizeof(char*) * 30);
+    
     while (fgets(linea, LONGITUD_MAX_LINEA, archivoNombres)) {
         resultado.textos[i] = malloc(sizeof(char)*(strlen(linea)+1));
         strcpy(resultado.textos[i], linea);
@@ -61,7 +65,7 @@ ListaTextos obtener_textos(char* rutaArtista) {
 
 char* limpiar_texto(char* nomTexto) {
     char c, resultado[CANT_CARACTERES_MAX];
-    int i = 0, estado = 0;
+    int i=0, estado=0;
     /*
     estado 0 -> el caracter anterior fue un punto/enter o no hay caracter anterior
     estado 1 -> el caracter anterior fue alfanumerico/digito
@@ -74,7 +78,9 @@ char* limpiar_texto(char* nomTexto) {
         printf("Hubo un problema al abrir el archivo %s\n", nomTexto);
         return NULL;
     }
+
     while ((c = fgetc(archivoEntrada)) != EOF) {
+
         if (isalpha(c) || isdigit(c)) {
             resultado[i] = tolower(c);
             estado = 1;
@@ -97,12 +103,12 @@ char* limpiar_texto(char* nomTexto) {
             estado = 0;
         }
     }
-    // modificamos el ultimo caracter de la cadena (un enter) por un terminador
+    // reemplazamos el ultimo caracter de la cadena (un enter) por un terminador
     if (i>1) {
         resultado[i-1]='\0';
     }
     
-    // copiamos el resultado en un puntero a char, para retornarlo al scope del main
+    // copiamos el resultado en un puntero a char, para poder retornar dicha cadena
     char* resultadoCopia = malloc((sizeof(char)*i)+1);
     strcpy(resultadoCopia, resultado);
 
@@ -122,7 +128,7 @@ int recorrer_y_limpiar(ListaTextos listaTextos, char* rutaArtista, char* nomArch
     for (int i=0; i < listaTextos.longitud; i++) {
         char* cadenasRutaTexto[] = {rutaArtista, "/", listaTextos.textos[i]};
         char* rutaTexto = armar_cadena(cadenasRutaTexto, 3);
-        // reemplazamos el "enter" al final de cada oracion por un terminador
+        // sacamos los "enter" al final de cada cadena
         rutaTexto[strlen(rutaTexto)-1] = '\0';
 
         textoLimpio = limpiar_texto(rutaTexto);
@@ -136,6 +142,7 @@ int recorrer_y_limpiar(ListaTextos listaTextos, char* rutaArtista, char* nomArch
         free(listaTextos.textos[i]);
         listaTextos.textos[i] = NULL;
     }
+
     free(listaTextos.textos);
     fclose(archivoDestino);
     return 0;
@@ -144,9 +151,11 @@ int recorrer_y_limpiar(ListaTextos listaTextos, char* rutaArtista, char* nomArch
 int llamar_python(char* args) {
     char* cadenasComando[] = {"python3 main.py ", args};
     char* comandoLlamadaPython = armar_cadena(cadenasComando, 2);
+
     if (system(comandoLlamadaPython) != 0) {
         return -1;
     }
+
     free(comandoLlamadaPython);
     return 0;
 }

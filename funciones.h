@@ -1,10 +1,11 @@
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
+
+//librerias
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
 #include<ctype.h>
-#include<assert.h>
 
 //macros
 #define RUTA_A_LEER "Textos/"
@@ -20,10 +21,15 @@ typedef struct {
     int longitud;
 } ListaTextos;
 
+// prototipos de funciones
 char* armar_cadena(char* palabras[], int cantPalabras);
+
 ListaTextos obtener_textos(char* rutaArtista);
+
 char* limpiar_texto(char* nomTexto);
+
 int recorrer_y_limpiar(ListaTextos listaTextos, char* rutaArtista, char* nomArchivoDestino);
+
 int llamar_python(char* args);
 
 #endif

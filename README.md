@@ -18,7 +18,3 @@ En caso de no tener pytest, instalarlo:
 
 Una vez teniendo pytest:
 > python3 -m pytest tests.py
-
-TODO:
-
-revisar y agregar mas comentarios al python/C
