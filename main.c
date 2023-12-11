@@ -11,6 +11,7 @@ int main(int argc, char** argv) {
         printf("Numero de argumentos incorrecta.\nUso: ./main nombre_de_artista\n");
         return -1;
     }
+    
     char* cadenasRutaArtista[] = {RUTA_A_LEER, argv[1]};
     rutaArtista = armar_cadena(cadenasRutaArtista, 2);
     

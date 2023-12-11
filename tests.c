@@ -79,8 +79,8 @@ void test_recorrer_y_limpiar() {
     int i=0;
 
     ListaTextos listaTextosTest;
-    listaTextosTest.textos = malloc(sizeof(char*) * 3);
-    listaTextosTest.longitud = 3;
+    listaTextosTest.textos = malloc(sizeof(char*) * 4);
+    listaTextosTest.longitud = 4;
 
     ListaTextos contenidoLinea;
     contenidoLinea.textos = malloc(sizeof(char*) * 9);
@@ -93,7 +93,11 @@ void test_recorrer_y_limpiar() {
     strcpy(listaTextosTest.textos[1], "El_libro_de_la_selva.txt\n");
 
     listaTextosTest.textos[2] = malloc(sizeof(char)*LONGITUD_MAX_LINEA);
-    strcpy(listaTextosTest.textos[2], "La_gallina_turuleca.txt\n");
+    strcpy(listaTextosTest.textos[2], "cancion_desconocida.txt\n");
+
+    listaTextosTest.textos[3] = malloc(sizeof(char)*LONGITUD_MAX_LINEA);
+    strcpy(listaTextosTest.textos[3], "La_gallina_turuleca.txt\n");
+
 
     char *rutaArtista = malloc(sizeof(char) * LONGITUD_NOM_ARCHIVO_MAX);
     char *nomArchDestino = malloc(sizeof(char) * LONGITUD_NOM_ARCHIVO_MAX);

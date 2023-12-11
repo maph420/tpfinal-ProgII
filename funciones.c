@@ -109,6 +109,7 @@ char* limpiar_texto(char* nomTexto) {
     fclose(archivoEntrada);
     return resultadoCopia;
 }
+
 int recorrer_y_limpiar(ListaTextos listaTextos, char* rutaArtista, char* nomArchivoDestino) {
     char *textoLimpio;
     FILE* archivoDestino = fopen(nomArchivoDestino, "w");
@@ -126,15 +127,12 @@ int recorrer_y_limpiar(ListaTextos listaTextos, char* rutaArtista, char* nomArch
 
         textoLimpio = limpiar_texto(rutaTexto);
 
-        if (textoLimpio == NULL) {
-            return -2;
+        if (textoLimpio != NULL) {
+            fputs(textoLimpio, archivoDestino);
+            fputc('\n', archivoDestino);
+            free(textoLimpio);
         }
-
-        fputs(textoLimpio, archivoDestino);
-        fputc('\n', archivoDestino);
-
         free(rutaTexto);
-        free(textoLimpio);
         free(listaTextos.textos[i]);
         listaTextos.textos[i] = NULL;
     }
